@@ -83,6 +83,19 @@ details.more-card[open]>summary{margin-bottom:8px}
 .kpi .v{font:700 22px/1.2 var(--display);font-variant-numeric:tabular-nums}
 .kpi .n{color:var(--ink3);font-size:12px}
 .alloc-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+#pie svg{max-width:340px;margin:10px auto;touch-action:manipulation}
+.slice{cursor:pointer;transition:filter .3s;outline:none}
+.plab .t1{font-size:13px;font-weight:600}
+.plab .t2{font-size:12px;font-weight:500}
+.plab .t3{font-size:24px;font-weight:700}
+.plab{fill:#fff;font:600 15px var(--body);paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px;pointer-events:none}
+@media(hover:hover){.slice:hover{filter:brightness(1.07)}}
+.slice.sel{filter:drop-shadow(0 6px 10px rgba(0,0,0,.3)) brightness(1.06)}
+#pie.has-sel .slice:not(.sel){filter:saturate(.85)}
+.slice:focus-visible{stroke:var(--ink)}
+.list>li.sel{font-weight:600}
+.list>li.sel .v{color:var(--accent)}
+#hapt{position:fixed;left:-200px;top:0;opacity:0;pointer-events:none}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chips button{background:var(--fill);border:0;border-radius:18px;min-height:36px;padding:4px 14px;cursor:pointer;font-size:15px}
 .chips button[aria-pressed=true]{background:var(--accent);color:#fff}
@@ -122,8 +135,13 @@ td.r,th.r{text-align:right}
 .sumrow:first-child{border-top:0}
 .sumrow.big{font-weight:700}
 .est{color:var(--ink3);font-size:12px}
+.status.mid{background:color-mix(in srgb,var(--c-other) 18%,transparent);color:color-mix(in srgb,var(--c-other) 65%,var(--ink))}
+input[type=range]{width:100%;accent-color:var(--accent);min-height:32px;margin:0}
+.inc-in .full{grid-column:1/-1}
+.meter{height:12px;border-radius:6px;background:var(--fill);overflow:hidden;margin:10px 0 6px;display:flex}
+.meter i{display:block;height:100%}
 @media(max-width:380px){h1{font-size:30px}.inc-in{grid-template-columns:1fr 110px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
 <div class="wrap">
@@ -142,7 +160,7 @@ td.r,th.r{text-align:right}
 
   <div class="card" id="allocCard">
     <h2>Where the money goes</h2>
-    <p class="note" style="margin-bottom:12px">Each month's income, split four ways.</p>
+    <p class="note" style="margin-bottom:12px">Each month's income, split four ways. Tap a slice to swell it.</p>
     <span class="seg" id="allocSeg" role="group" aria-label="Whose money"></span>
     <div class="alloc-grid">
       <div id="pie"></div>
@@ -169,6 +187,21 @@ td.r,th.r{text-align:right}
     <p class="note">Each bar is what you spent that month. The green line is what you bring home. Red bars went over it.</p>
     <div class="legend" id="incLegend"></div>
     <div id="incChart"></div>
+  </div>
+
+  <div class="card" id="planCard">
+    <h2>Plan a goal</h2>
+    <p class="note" style="margin-bottom:12px">See what you would need to save each month for something big. Savings come out of the money left over each month, not out of retirement.</p>
+    <span class="seg" id="goalSeg" role="group" aria-label="Choose a goal"></span>
+    <div class="inc-in" id="goalInputs" style="margin-top:16px"></div>
+    <div id="planResult" style="margin-top:18px"></div>
+    <div class="legend" id="planLegend"></div>
+    <div id="planChart"></div>
+    <h2 style="margin-top:22px">Ways to get there</h2>
+    <ul class="list" id="planWays"></ul>
+    <h2 style="margin-top:22px">All goals together</h2>
+    <div id="planAll"></div>
+    <p class="note" id="planNote"></p>
   </div>
 
   <details class="card more-card" id="assump">
@@ -216,6 +249,7 @@ td.r,th.r{text-align:right}
   </details>
 </div>
 <div class="tip" id="tip"></div>
+<label id="hapt" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -271,6 +305,11 @@ const tip=$('tip');
 function showTip(e,html){tip.innerHTML=html;tip.style.display='block';const w=tip.offsetWidth;let x=e.clientX+12,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-12;x=Math.max(8,Math.min(x,innerWidth-w-8));tip.style.left=x+'px';tip.style.top=y+'px'}
 function hideTip(){tip.style.display='none'}
 let tipT;
+function haptic(){ // Android browsers buzz via vibrate; iOS Safari has no vibrate, so a hidden switch toggle is used as a best-effort tap
+  try{ if(navigator.vibrate && navigator.vibrate(12)) return; }catch(_){}
+  try{ const i=document.querySelector('#hapt input'); if(i) i.click(); }catch(_){}
+}
+let selSlice=null,pieS={},pieRaf=0;
 document.addEventListener('mousemove',e=>{if(tip.style.display==='block'&&e.target.closest&&!e.target.closest('[data-tip]'))hideTip()});
 document.addEventListener('click',e=>{if(!e.target.closest('[data-tip]'))hideTip()});
 function bindTips(root){
@@ -544,16 +583,42 @@ function allocRender(){
   const S=k=>ps.reduce((s,p)=>s+A[p][k],0);
   const fixed=S('fixed'), other=S('other'), invest=S('ret'), save=S('left'), over=S('over');
   const slices=[['Fixed',fixed,'--c-fixed',ps.map(p=>(allocWho==='Both'?p+': ':'')+([...fixedBy[p]].join(', ')||'none')).join('; ')],['Savings',save,'--c-save','income left unspent'],['Investments',invest,'--c-invest','retirement and HSA contributions'],['Spend',other,'--c-other','dining, travel, shopping and the rest']];
-  const tot=slices.reduce((s,x)=>s+x[1],0)||1; const W=300,cx=150,cy=150,R=140; let a=-Math.PI/2, svg=`<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Share of income: fixed, savings, investments, spend">`;
-  slices.forEach(([nm,v,col])=>{ if(v<=0)return; const f=v/tot, a2=a+f*2*Math.PI;
-    const pt=(ang,r)=>[cx+r*Math.cos(ang),cy+r*Math.sin(ang)];
-    const tipH=`<b>${nm}: ${Math.round(f*100)}%</b>${fmt(v)} a month`;
-    let d; if(f>.9999) d=`M${cx} ${cy-R}A${R} ${R} 0 1 1 ${cx-.01} ${cy-R}Z`; else {const [x1,y1]=pt(a,R),[x2,y2]=pt(a2,R); d=`M${cx} ${cy}L${x1} ${y1}A${R} ${R} 0 ${f>.5?1:0} 1 ${x2} ${y2}Z`}
-    svg+=`<path d="${d}" fill="${css(col)}" stroke="${css('--surface')}" stroke-width="2" data-tip="${tipH}"/>`;
-    if(f>=.06){const [lx,ly]=pt((a+a2)/2,R*.62);svg+=`<text x="${lx}" y="${ly+5}" text-anchor="middle" style="fill:#fff;font:600 15px var(--body);paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px">${Math.round(f*100)}%</text>`}
-    a=a2});
-  svg+='</svg>'; $('pie').innerHTML=svg; bindTips($('pie'));
-  $('allocTable').innerHTML='<ul class="list">'+slices.map(([nm,v,col,sub])=>`<li><span class="rowl"><span class="dot" style="background:${css(col)}"></span><span style="min-width:0">${nm}<div class="s">${sub}</div></span></span><span class="v">${fmt(v)} · ${Math.round(v/tot*100)}%</span></li>`).join('')+`<li><b>Total per month</b><span class="v">${fmt(tot)}</span></li></ul>`;
+  const tot=slices.reduce((s,x)=>s+x[1],0)||1; const cx=150,cy=150,R=116;
+  const shown=slices.filter(s=>s[1]>0);
+  $('pie').innerHTML=`<svg viewBox="0 0 300 300" role="img" aria-label="Share of income: fixed, savings, investments, spend">`+shown.map(([nm,v,col])=>`<g class="sg" data-n="${nm}"><path class="slice" data-n="${nm}" tabindex="0" role="button" aria-label="${nm}: ${Math.round(v/tot*100)}%" fill="${css(col)}" stroke="${css('--surface')}" stroke-width="2" data-tip="<b>${nm}: ${Math.round(v/tot*100)}%</b>${fmt(v)} a month"/><text class="plab" text-anchor="middle">${Math.round(v/tot*100)}%</text></g>`).join('')+'</svg>';
+  bindTips($('pie'));
+  const targets=()=>{ // the selected slice swells and squeezes the others into the remaining space
+    const o={}, sel=shown.find(s=>s[0]===selSlice), fs=sel?sel[1]/tot:0;
+    shown.forEach(s=>{const f=s[1]/tot; if(sel&&fs<.98){ if(s===sel)o[s[0]]={f:Math.min(.62,fs+.17),r:R*1.13}; else o[s[0]]={f:f*(1-Math.min(.62,fs+.17))/(1-fs),r:R*.94}} else o[s[0]]={f,r:R}});
+    return o};
+  const paint=st=>{
+    const sm=shown.reduce((s,x)=>s+st[x[0]].f,0)||1; let a=-Math.PI/2;
+    shown.forEach(([nm,v])=>{const s=st[nm],f=s.f/sm,a2=a+f*2*Math.PI,r=s.r,g=$('pie').querySelector('.sg[data-n="'+nm+'"]'),p=g.firstChild,tx=g.lastChild;
+      const pt=(ang,rr)=>[cx+rr*Math.cos(ang),cy+rr*Math.sin(ang)];
+      let d=''; if(f>.9999)d=`M${cx} ${cy-r}A${r} ${r} 0 1 1 ${cx-.01} ${cy-r}Z`; else if(f>.0005){const[x1,y1]=pt(a,r),[x2,y2]=pt(a2,r);d=`M${cx} ${cy}L${x1} ${y1}A${r} ${r} 0 ${f>.5?1:0} 1 ${x2} ${y2}Z`}
+      p.setAttribute('d',d);
+      if(f>=.06){const big=nm===selSlice&&f>=.2,[lx,ly]=pt((a+a2)/2,r*(big?.58:.62)); const mode=big?'s':'n';
+        if(tx.dataset.mode!==mode){tx.dataset.mode=mode;tx.innerHTML=big?`<tspan class="t1">${nm}</tspan><tspan class="t2">${fmt(v)} a month</tspan><tspan class="t3">${Math.round(v/tot*100)}%</tspan>`:Math.round(v/tot*100)+'%'}
+        if(big){const k=tx.children,ys=[-20,-2,24];for(let i=0;i<3;i++){k[i].setAttribute('x',lx);k[i].setAttribute('y',ly+ys[i])}}else{tx.setAttribute('x',lx);tx.setAttribute('y',ly+5)}
+        tx.style.display=''}else tx.style.display='none';
+      a=a2})};
+  const animate=to=>{
+    cancelAnimationFrame(pieRaf); const from=JSON.parse(JSON.stringify(pieS));
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches){pieS=to;paint(to);return}
+    const t0=performance.now(),D=850;
+    const step=now=>{const k=Math.min((now-t0)/D,1),e=k>=1?1:Math.pow(2,-10*k)*Math.sin((k*10-.75)*2.0944)+1,cur={};
+      for(const nm in to){const a=from[nm]||to[nm];cur[nm]={f:Math.max(0,a.f+(to[nm].f-a.f)*e),r:a.r+(to[nm].r-a.r)*e}}
+      pieS=cur;paint(cur); if(k<1)pieRaf=requestAnimationFrame(step); else{pieS=to;paint(to)}};
+    pieRaf=requestAnimationFrame(step)};
+  cancelAnimationFrame(pieRaf); pieS=targets(); paint(pieS);
+  const front=()=>{const g=selSlice&&$('pie').querySelector('.sg[data-n="'+selSlice+'"]'); if(g)g.parentNode.appendChild(g)};
+  front();
+  const mark=()=>{$('pie').querySelectorAll('.slice').forEach(p=>p.classList.toggle('sel',p.dataset.n===selSlice));$('pie').classList.toggle('has-sel',!!selSlice);$('allocTable').querySelectorAll('li[data-n]').forEach(l=>l.classList.toggle('sel',l.dataset.n===selSlice))};
+  const pick=n=>{haptic();hideTip();selSlice=selSlice===n?null:n;mark();front();animate(targets())};
+  $('allocTable').innerHTML='<ul class="list">'+slices.map(([nm,v,col,sub])=>`<li data-n="${nm}"><span class="rowl"><span class="dot" style="background:${css(col)}"></span><span style="min-width:0">${nm}<div class="s">${sub}</div></span></span><span class="v">${fmt(v)} · ${Math.round(v/tot*100)}%</span></li>`).join('')+`<li><b>Total per month</b><span class="v">${fmt(tot)}</span></li></ul>`;
+  $('pie').querySelectorAll('.slice').forEach(p=>{p.addEventListener('click',()=>pick(p.dataset.n));p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(p.dataset.n)}})});
+  $('allocTable').querySelectorAll('li[data-n]').forEach(l=>l.addEventListener('click',()=>pick(l.dataset.n)));
+  mark();
   $('allocNote').textContent=`Investments are retirement and HSA contributions (Joey's from his pay sheet, Molly's from the estimate). Savings is income left unspent. Spend is everything not marked fixed. Joey's insurance, dental and vision premiums count as fixed. Employer contributions are not included. The travel gift is removed from joint spending.`+(over>0?` Spending is ${fmt(over)} a month more than income here, so the slices add up to more than after-tax income.`:'');
 }
 
@@ -571,11 +636,105 @@ function heroRender(){
    <p class="note">Monthly averages, ${first} to ${last}. Brought home means after taxes and retirement. Spending leaves out the $${inc.gift.toLocaleString('en-US')} travel gift. Molly's income is an estimate.</p>`;
 }
 
+/* ---------- goal planner ---------- */
+const GOALS0=[{id:'trip',short:'Trip',name:'Big trip',target:12000,years:5,start:0,rate:4,infl:3,on:true},
+  {id:'house',short:'House',name:'House down payment',target:100000,years:10,start:0,rate:4,infl:3,on:true},
+  {id:'custom',short:'Custom',name:'Custom goal',target:25000,years:7,start:0,rate:4,infl:3,on:false}];
+let goals=JSON.parse(JSON.stringify(GOALS0)), gSel=0;
+try{const s=JSON.parse(localStorage.getItem('mj-goals')||'null'); if(Array.isArray(s)&&s.length===3)goals=GOALS0.map((d,i)=>({...d,...s[i]}))}catch(e){}
+const saveGoals=()=>{try{localStorage.setItem('mj-goals',JSON.stringify(goals))}catch(_){}};
+const gFV=(P,pmt,i,n)=>i?P*Math.pow(1+i,n)+pmt*(Math.pow(1+i,n)-1)/i:P+pmt*n;
+function gNeed(g){
+  const n=Math.max(1,Math.round(g.years*12)), i=g.rate/1200, T=g.target*Math.pow(1+g.infl/100,g.years);
+  const gap=T-g.start*Math.pow(1+i,n), pmt=Math.max(0,i?gap*i/(Math.pow(1+i,n)-1):gap/n);
+  return {n,i,T,pmt};
+}
+function gMonths(g,pmt){ // months until savings catch the (rising) price
+  const i=g.rate/1200;
+  for(let n=1;n<=720;n++){if(gFV(g.start,pmt,i,n)>=g.target*Math.pow(1+g.infl/100,n/12))return n}
+  return null;
+}
+const ym=n=>{if(n==null)return 'more than 60 years';const y=Math.floor(n/12),m=n%12;return y?`${y} year${y>1?'s':''}${m?` ${m} month${m>1?'s':''}`:''}`:`${m} month${m>1?'s':''}`};
+function monthlyLeft(){
+  const I=getInc(), full=monthsList().filter(m=>!isPartial(m)), {out}=incomeSpend();
+  const avg=full.reduce((s,m)=>s+out.get(m),0)/full.length; return {left:I.tot-avg,tot:I.tot,avg};
+}
+const GFIELDS=[['name','Goal name','text'],['target','Cost today ($)','number'],['start','Already saved ($)','number'],['rate','Growth per year (%)','number'],['infl','Price rise per year (%)','number']];
+function planInit(){
+  const seg=$('goalSeg'); seg.innerHTML='';
+  goals.forEach((g,i)=>{const b=document.createElement('button');b.textContent=g.short;b.setAttribute('aria-pressed',gSel===i);b.onclick=()=>{gSel=i;planInit();planRender()};seg.appendChild(b)});
+  const g=goals[gSel];
+  let h='';
+  if(g.id==='custom')h+=`<label for="g_name">Goal name</label><input id="g_name" type="text" value="${esc(g.name)}">`;
+  h+=`<label for="g_target">Cost today ($)</label><input id="g_target" type="number" inputmode="decimal" min="0" step="any" value="${g.target}">`;
+  h+=`<label for="g_years">Years from now</label><input id="g_years" type="number" inputmode="decimal" min="0.5" max="40" step="any" value="${g.years}">`;
+  h+=`<input class="full" id="g_yearsR" type="range" min="1" max="30" step="1" value="${Math.min(30,Math.max(1,Math.round(g.years)))}" aria-label="Years from now">`;
+  h+=`<label for="g_start">Already saved ($)</label><input id="g_start" type="number" inputmode="decimal" min="0" step="any" value="${g.start}">`;
+  h+=`<label for="g_rate">Growth per year (%)</label><input id="g_rate" type="number" inputmode="decimal" min="0" step="any" value="${g.rate}">`;
+  h+=`<label for="g_infl">Price rise per year (%)</label><input id="g_infl" type="number" inputmode="decimal" min="0" step="any" value="${g.infl}">`;
+  h+=`<div class="full chips" style="margin-top:4px"><button id="g_on" aria-pressed="${g.on}">${g.on?'Included in all goals together':'Not included in all goals together'}</button></div>`;
+  $('goalInputs').innerHTML=h;
+  const bind=(id,key,num)=>{const el=$(id); if(!el)return; el.oninput=e=>{const v=num?parseFloat(e.target.value):e.target.value; goals[gSel][key]=num?(isNaN(v)?0:v):v; if(key==='years'&&$('g_yearsR'))$('g_yearsR').value=Math.min(30,Math.max(1,Math.round(goals[gSel].years))); saveGoals(); planRender()}};
+  bind('g_name','name',false);bind('g_target','target',true);bind('g_years','years',true);bind('g_start','start',true);bind('g_rate','rate',true);bind('g_infl','infl',true);
+  $('g_yearsR').oninput=e=>{goals[gSel].years=+e.target.value;$('g_years').value=e.target.value;saveGoals();planRender()};
+  $('g_on').onclick=e=>{goals[gSel].on=!goals[gSel].on;e.target.setAttribute('aria-pressed',goals[gSel].on);e.target.textContent=goals[gSel].on?'Included in all goals together':'Not included in all goals together';saveGoals();planRender()};
+}
+function planRender(){
+  const g=goals[gSel], {left}=monthlyLeft(), N=gNeed(g), nm=g.name||'this goal';
+  const share=left>0?N.pmt/left:Infinity;
+  const st=share<=.5?['good','Comfortable']:share<=1?['mid','Possible, but it takes most of what is left']:['warn','More than you have left each month'];
+  const yrs=g.years;
+  $('planResult').innerHTML=`<span class="status ${st[0]}">${st[1]}</span>
+   <div class="lab">To reach ${esc(nm)}, save each month</div>
+   <div class="huge">${fmt(N.pmt)}</div>
+   <p class="lead">That builds <b>${fmt(N.T)}</b> in ${yrs===1?'1 year':yrs+' years'}, which is ${fmt(g.target)} in today's prices after ${g.infl}% a year of price rises.${left>0?` It uses ${Math.round(share*100)}% of the ${fmt(left)} you have left over each month.`:' You have nothing left over each month right now.'}</p>`;
+  // chart
+  const el=$('planChart'), W=Math.max(cw(el),280), narrow=W<520, H=narrow?240:280, m={l:narrow?44:54,r:10,t:14,b:26};
+  const n=N.n, balAt=k=>gFV(g.start,N.pmt,N.i,k), inAt=k=>g.start+N.pmt*k;
+  const max=niceMax(Math.max(N.T,balAt(n))*1.04);
+  const x=k=>m.l+(W-m.l-m.r)*k/n, y=v=>m.t+(H-m.t-m.b)*(1-v/max);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Projected savings over time">`;
+  for(let i=0;i<=3;i++){const v=max*i/3;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--grid')}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`}
+  const step=yrs<=6?1:yrs<=12?2:yrs<=24?5:10;
+  for(let yr=0;yr<=yrs;yr+=step){s+=`<text x="${x(yr*12)}" y="${H-7}" text-anchor="middle">${yr===0?'Now':'Yr '+yr}</text>`}
+  const pts=k0=>{let d='';for(let k=0;k<=n;k+=Math.max(1,Math.round(n/120)))d+=(d?'L':'M')+x(k).toFixed(1)+' '+y(k0(k)).toFixed(1);return d+'L'+x(n).toFixed(1)+' '+y(k0(n)).toFixed(1)};
+  const bal=pts(balAt);
+  s+=`<path d="${bal}L${x(n)} ${y(0)}L${x(0)} ${y(0)}Z" fill="${css('--accent')}" fill-opacity=".12"/>`;
+  s+=`<path d="${pts(inAt)}" fill="none" stroke="${css('--ink3')}" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+  s+=`<path d="${bal}" fill="none" stroke="${css('--accent')}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(N.T)}" y2="${y(N.T)}" stroke="${css('--good')}" stroke-width="2" stroke-dasharray="6 4"/><text x="${m.l+4}" y="${y(N.T)-6}" style="fill:${css('--good')};font-weight:600">Goal ${fmt(N.T)}</text>`;
+  const marks=[]; for(let yr=step;yr<=yrs;yr+=step)marks.push(yr*12); if(!marks.includes(n))marks.push(n);
+  marks.forEach(k=>{const b=balAt(k),inn=inAt(k),yy=k/12;
+    const t=`<b>${k===n?'End':'Year '+(+yy.toFixed(1))}: ${fmt(b)}</b>You put in ${fmt(inn)}<br>Growth ${fmt(b-inn)}`;
+    s+=`<g data-tip="${t.replace(/"/g,'&quot;')}"><circle cx="${x(k)}" cy="${y(b)}" r="16" fill="transparent"/><circle cx="${x(k)}" cy="${y(b)}" r="4.5" fill="${css('--accent')}" stroke="${css('--surface')}" stroke-width="2"/></g>`});
+  s+='</svg>'; el.innerHTML=s; bindTips(el);
+  $('planLegend').innerHTML=`<span><i style="background:${css('--accent')}"></i>Savings balance</span><span><i style="background:${css('--ink3')}"></i>Money you put in</span><span><i style="background:${css('--good')}"></i>Goal after price rises</span>`;
+  // ways
+  const A=allocCalc(), spend=A.Joey.other+A.Molly.other; const W2=[];
+  const rowW=(a,b,v)=>`<li><span>${a}<div class="s">${b}</div></span><span class="v">${v}</span></li>`;
+  if(left>0){
+    W2.push(rowW(`Save all of what is left over (${fmt(left)} a month)`,'Time to reach the goal',ym(gMonths(g,left))));
+    W2.push(rowW(`Save half of it (${fmt(left/2)} a month)`,'Time to reach the goal',ym(gMonths(g,left/2))));
+    const reach=gFV(g.start,left,N.i,N.n)/Math.pow(1+g.infl/100,g.years);
+    if(N.pmt>left)W2.push(rowW(`Keep the ${yrs===1?'1-year':yrs+'-year'} timeline and save ${fmt(left)} a month`,'What you could afford, in today\'s prices',fmt(reach)));
+  }
+  if(N.pmt>left) W2.push(rowW(`Find ${fmt(N.pmt-Math.max(left,0))} more each month`,spend>0?`About ${Math.round((N.pmt-Math.max(left,0))/spend*100)}% of your usual Spend`:'From your Spend bucket',fmt(N.pmt-Math.max(left,0))+' more'));
+  else W2.push(rowW('Room left each month after this goal','Free to spend or put toward another goal',fmt(left-N.pmt)));
+  $('planWays').innerHTML=W2.join('');
+  // all goals
+  const on=goals.filter(x=>x.on), tot=on.reduce((s,x)=>s+gNeed(x).pmt,0), sh=left>0?tot/left:Infinity;
+  $('planAll').innerHTML=on.length?`<ul class="list">${on.map(x=>`<li><span>${esc(x.name)}<div class="s">${fmt(x.target)} in ${x.years} year${x.years===1?'':'s'}</div></span><span class="v">${fmt(gNeed(x).pmt)} a month</span></li>`).join('')}<li><b>Together</b><span class="v">${fmt(tot)} a month</span></li></ul>
+    <div class="meter" role="img" aria-label="Share of leftover money used"><i style="width:${Math.min(100,sh*100)}%;background:${sh>1?css('--warn'):sh>.8?css('--c-other'):css('--c-save')}"></i></div>
+    <p class="note" style="margin:0">${left>0?(sh>1?`Together these need ${fmt(tot-left)} more a month than you have left over (${fmt(left)}).`:`Together they use ${Math.round(sh*100)}% of the ${fmt(left)} left over each month, which leaves ${fmt(left-tot)} free.`):'Nothing is left over each month right now.'}</p>`
+    :'<p class="note">Turn on "Included in all goals together" for one or more goals to see them added up.</p>';
+  $('planNote').textContent='This is a planning estimate, not financial advice. It assumes you save the same amount every month, that growth is steady, and it ignores taxes. Growth is not guaranteed, and a high-yield savings account usually earns less than the stock market over long periods. Change the percentages to test other cases.';
+}
+
 let dropped=0;
 function render(){
   const f=filtered();
   $('range').textContent=`${rows.length} transactions, ${rows[0].iso} to ${rows[rows.length-1].iso}`;
-  buildControls(); kpis(f); incRender(); allocRender(); heroRender();
+  buildControls(); kpis(f); incRender(); allocRender(); heroRender(); planRender();
   {const sv={...state}; state.who='All';state.month='All';state.cat=null; try{insights(rows)}finally{Object.assign(state,sv)}}
   monthChart(filtered()); catChart(); whoTable(f); dowChart(f); topTable(f); ledger(f); dataNotes(dropped);
 }
@@ -596,7 +755,7 @@ $('file').onchange=async e=>{
   }catch(err){$('range').textContent='Could not read that file: '+err.message+' Expected columns DATE, DESCRIPTION, AMOUNT, ACCOUNT, OWNER, CATEGORY.'}
   e.target.value='';
 };
-{const r=ingest(SEED); rows=r.out; dropped=r.dropped; incInit(); render();}
+{const r=ingest(SEED); rows=r.out; dropped=r.dropped; incInit(); planInit(); render();}
 </script>
 
 </body></html>
