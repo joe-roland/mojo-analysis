@@ -1,0 +1,602 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Molly & Joey Spending</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: iOS-style grouped lists on a light-gray ground, one hero number, big touch targets, disclosure rows for detail. */
+:root{
+  --bg:#f2f2f7; --surface:#ffffff; --ink:#000000; --ink2:#3c3c43; --ink3:#6c6c70; --line:#e5e5ea; --grid:#ececf0;
+  --fill:rgba(118,118,128,.12); --seg-on:#ffffff;
+  --accent:#007aff; --accent-soft:rgba(0,122,255,.10);
+  --joey:#32ade6; --molly:#ff2d55; --joint:#8e8e93;
+  --c-fixed:#007aff; --c-save:#34c759; --c-invest:#af52de; --c-other:#ff9500;
+  --good:#248a3d; --warn:#d70015;
+  --display:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+  --body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#000000; --surface:#1c1c1e; --ink:#ffffff; --ink2:#d1d1d6; --ink3:#98989f; --line:#38383a; --grid:#2c2c2e;
+  --fill:rgba(118,118,128,.24); --seg-on:#636366; --accent:#0a84ff; --accent-soft:rgba(10,132,255,.18);
+  --joey:#64d2ff; --molly:#ff375f; --joint:#98989d; --c-fixed:#0a84ff; --c-save:#30d158; --c-invest:#bf5af2; --c-other:#ff9f0a; --good:#30d158; --warn:#ff453a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#1c1c1e; --ink:#ffffff; --ink2:#d1d1d6; --ink3:#98989f; --line:#38383a; --grid:#2c2c2e;
+  --fill:rgba(118,118,128,.24); --seg-on:#636366; --accent:#0a84ff; --accent-soft:rgba(10,132,255,.18);
+  --joey:#64d2ff; --molly:#ff375f; --joint:#98989d; --c-fixed:#0a84ff; --c-save:#30d158; --c-invest:#bf5af2; --c-other:#ff9f0a; --good:#30d158; --warn:#ff453a; color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--body);-webkit-font-smoothing:antialiased;padding-block:12px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+h1{font:700 34px/1.1 var(--display);letter-spacing:.01em;margin:0}
+h2{font:700 20px/1.25 var(--display);margin:0 0 2px;letter-spacing:.01em}
+.sub{color:var(--ink3);margin:4px 0 0;font-size:15px}
+.top{display:flex;gap:12px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
+button,select,input{font:inherit;color:var(--ink)}
+.btn{background:none;border:0;color:var(--accent);padding:10px 0;min-height:44px;cursor:pointer;font-size:16px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border-radius:18px;padding:18px;min-width:0}
+.note{color:var(--ink3);font-size:13px;line-height:1.4;margin:6px 0 0}
+.seg{display:flex;background:var(--fill);border-radius:9px;padding:2px}
+.seg button{flex:1;border:0;background:none;border-radius:7px;min-height:32px;padding:4px 14px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--seg-on);box-shadow:0 1px 3px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.04);font-weight:600}
+.filters{display:flex;flex-direction:column;gap:12px}
+.filters>div{display:flex;flex-direction:column;gap:6px;min-width:0}
+.filters label{color:var(--ink3);font-size:13px}
+select,input[type=search],.inc-in input{background:var(--fill);border:0;border-radius:10px;min-height:44px;padding:8px 12px;font-size:16px;width:100%}
+select{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink3) 50%),linear-gradient(135deg,var(--ink3) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+input::placeholder{color:var(--ink3)}
+/* hero */
+.hero{padding:22px 20px 18px}
+.status{display:inline-block;font-size:13px;font-weight:600;border-radius:12px;padding:3px 10px}
+.status.good{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+.status.warn{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.hero .lab{color:var(--ink3);font-size:15px;margin-top:14px}
+.huge{font:700 clamp(44px,15vw,64px)/1.05 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.lead{color:var(--ink2);margin:8px 0 16px;font-size:17px;line-height:1.35}
+/* lists */
+.list{list-style:none;margin:0;padding:0}
+.list>li{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;padding:8px 0;border-top:.5px solid var(--line);font-variant-numeric:tabular-nums}
+.list>li:first-child{border-top:0}
+.list .v{font-weight:600;white-space:nowrap}
+.list .s{color:var(--ink3);font-size:13px;line-height:1.3}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:10px;flex:none}
+.rowl{display:flex;align-items:center;min-width:0}
+.insights{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column}
+.insights li{display:block;padding:12px 0;border-top:.5px solid var(--line)}
+.insights li:first-child{border-top:0;padding-top:4px}
+.insights .tag{display:block;font-size:13px;font-weight:600;color:var(--accent);margin-bottom:2px}
+.insights b{font-variant-numeric:tabular-nums}
+/* disclosure rows */
+details>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:44px;color:var(--accent);font-size:16px}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--ink3);border-bottom:2px solid var(--ink3);transform:rotate(-45deg);flex:none;margin-right:4px;transition:transform .2s}
+details[open]>summary::after{transform:rotate(45deg)}
+details.more{margin-top:8px;border-top:.5px solid var(--line);padding-top:4px}
+details.more-card{padding:6px 18px}
+details.more-card>summary{font:600 17px var(--body);color:var(--ink);min-height:52px}
+details.more-card[open]{padding-bottom:18px}
+details.more-card[open]>summary{margin-bottom:8px}
+.explore{display:flex;flex-direction:column;gap:28px}
+.sect{min-width:0}
+.grid2{display:flex;flex-direction:column;gap:28px}
+@media(min-width:720px){.grid2{display:grid;grid-template-columns:1fr 1fr;gap:28px}.alloc-grid{grid-template-columns:1fr 1fr!important}}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi{background:var(--bg);border-radius:12px;padding:12px 14px;min-width:0}
+.kpi .l{color:var(--ink3);font-size:13px}
+.kpi .v{font:700 22px/1.2 var(--display);font-variant-numeric:tabular-nums}
+.kpi .n{color:var(--ink3);font-size:12px}
+.alloc-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:var(--fill);border:0;border-radius:18px;min-height:36px;padding:4px 14px;cursor:pointer;font-size:15px}
+.chips button[aria-pressed=true]{background:var(--accent);color:#fff}
+.chip{display:inline-flex;gap:6px;align-items:center;background:var(--accent-soft);color:var(--accent);border-radius:16px;padding:6px 8px 6px 14px;font-size:14px}
+.chip button{background:none;border:0;cursor:pointer;color:inherit;font-size:18px;line-height:1;min-width:28px;min-height:28px}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;color:var(--ink2);font-size:13px;margin:10px 0 6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+svg{display:block;width:100%;height:auto;overflow:visible}
+svg text{fill:var(--ink3);font:12px var(--body);font-variant-numeric:tabular-nums}
+svg .val{fill:var(--ink2)}
+svg .lab{fill:var(--ink)}
+.bar{cursor:pointer}
+.tip{position:fixed;pointer-events:none;background:rgba(40,40,44,.92);color:#fff;padding:8px 11px;border-radius:10px;font-size:13px;z-index:20;max-width:240px;display:none;font-variant-numeric:tabular-nums;backdrop-filter:blur(12px)}
+.tip b{display:block}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
+th,td{text-align:left;padding:10px 8px;border-bottom:.5px solid var(--line);white-space:nowrap}
+td.wrapc{white-space:normal}
+th{color:var(--ink3);font-weight:500;font-size:12px}
+td.r,th.r{text-align:right}
+.lrow{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:.5px solid var(--line)}
+.lrow:first-child{border-top:0}
+.ld{font-weight:500;overflow-wrap:anywhere}
+.lm{color:var(--ink3);font-size:13px;overflow-wrap:anywhere}
+.la{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ledger{max-height:520px;overflow:auto;-webkit-overflow-scrolling:touch}
+.ledbar{display:flex;flex-direction:column;gap:10px;margin:10px 0}
+.notes{padding-left:18px;margin:8px 0 0}
+.notes li{margin-bottom:6px;color:var(--ink2);font-size:14px}
+/* income assumptions */
+.inc-grid{display:flex;flex-direction:column;gap:18px;margin:8px 0}
+.inc-in{display:grid;grid-template-columns:1fr 128px;gap:10px 12px;align-items:center;align-content:start}
+.inc-in h3{grid-column:1/-1;margin:8px 0 0;font:600 13px var(--body);color:var(--ink3)}
+.inc-in label{color:var(--ink2);font-size:15px}
+.inc-in input{text-align:right;font-variant-numeric:tabular-nums}
+.sumrow{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:.5px solid var(--line);font-variant-numeric:tabular-nums;font-size:15px}
+.sumrow:first-child{border-top:0}
+.sumrow.big{font-weight:700}
+.est{color:var(--ink3);font-size:12px}
+@media(max-width:380px){h1{font-size:30px}.inc-in{grid-template-columns:1fr 110px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Molly &amp; Joey Spending</h1>
+      <p class="sub" id="range"></p>
+    </div>
+    <div>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv" hidden>
+      <button class="btn" id="loadBtn">Load updated spreadsheet</button>
+    </div>
+  </div>
+
+  <section class="card hero" id="hero" aria-live="polite"></section>
+
+  <div class="card" id="allocCard">
+    <h2>Where the money goes</h2>
+    <p class="note" style="margin-bottom:12px">Each month's income, split four ways.</p>
+    <span class="seg" id="allocSeg" role="group" aria-label="Whose money"></span>
+    <div class="alloc-grid">
+      <div id="pie"></div>
+      <div id="allocTable"></div>
+    </div>
+    <details class="more">
+      <summary>Change what counts as fixed, and how this is worked out</summary>
+      <div class="filters" style="margin-top:10px">
+        <div><label>Joey fixed</label><span id="fixedChipsJoey" class="chips"></span></div>
+        <div><label>Molly fixed</label><span id="fixedChipsMolly" class="chips"></span></div>
+      </div>
+      <p class="note" id="allocNote"></p>
+      <p class="note">Purchases on the Joint account owned by Joint are split evenly. Joey Checking is Joey's, Molly Checking is Molly's, and a Joint-account purchase owned by one of you is that person's.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>Worth knowing</h2>
+    <ul class="insights" id="insights"></ul>
+  </div>
+
+  <div class="card" id="incomeCard">
+    <h2>Month by month</h2>
+    <p class="note">Each bar is what you spent that month. The green line is what you bring home. Red bars went over it.</p>
+    <div class="legend" id="incLegend"></div>
+    <div id="incChart"></div>
+  </div>
+
+  <details class="card more-card" id="assump">
+    <summary>Income numbers used (Molly's are an estimate)</summary>
+    <div class="inc-grid">
+      <div class="inc-in" id="incInputs"></div>
+      <div id="incSummary"></div>
+    </div>
+    <p class="note" id="incNote"></p>
+  </details>
+
+  <details class="card more-card" id="explore">
+    <summary>Explore the details</summary>
+    <div class="explore">
+      <div class="filters" role="group" aria-label="Filters for the details below">
+        <div><label>Who spent</label><span class="seg" id="whoSeg"></span></div>
+        <div><label for="monthSel">Month</label><select id="monthSel"></select></div>
+        <div id="catChip"></div>
+      </div>
+      <div class="kpis" id="kpis"></div>
+      <div class="sect">
+        <h2>Spending by month and person</h2>
+        <div class="legend" id="monthLegend"></div>
+        <div id="monthChart"></div>
+        <p class="note" id="monthNote"></p>
+      </div>
+      <div class="grid2">
+        <div class="sect"><h2>By category</h2><p class="note">Click a bar to filter everything in this section.</p><div id="catChart"></div></div>
+        <div class="sect"><h2>Who spends on what</h2><div class="scroll" id="whoTable"></div></div>
+      </div>
+      <div class="grid2">
+        <div class="sect"><h2>Day of the week</h2><p class="note">Excluding rent.</p><div id="dowChart"></div></div>
+        <div class="sect"><h2>Most frequent purchases</h2><div class="scroll" id="topTable"></div></div>
+      </div>
+      <div class="sect">
+        <h2>All transactions</h2>
+        <div class="ledbar">
+          <input type="search" id="q" placeholder="Search" aria-label="Search transactions">
+          <select id="sortSel" aria-label="Sort transactions"><option value="date:-1">Newest first</option><option value="date:1">Oldest first</option><option value="amt:-1">Largest first</option><option value="amt:1">Smallest first</option></select>
+        </div>
+        <div class="ledger" id="ledger"></div>
+      </div>
+      <div class="sect"><h2>Data notes</h2><ul class="notes" id="dataNotes"></ul></div>
+    </div>
+  </details>
+</div>
+<div class="tip" id="tip"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+const SEED = [["2026-01-01","January Rent",2300.0,"Joint","Joint","Rent",""],["2026-01-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-01-04","Grocery",90.21,"Joint","Joey","Grocery",""],["2026-01-04","Grocery",42.42,"Molly Checking","Molly","Grocery",""],["2026-01-06","Gas",24.17,"Molly Checking","Molly","Car",""],["2026-01-09","Hair cut",135.0,"Molly Checking","Molly","Personal",""],["2026-01-09","Grocery",59.0,"Joint","Joint","Grocery",""],["2026-01-09","Lizard Lounge",18.0,"Joint","Joint","Dining",""],["2026-01-10","Wooden Bowl",84.0,"Joint","Joint","Dining",""],["2026-01-11","Grocery",121.54,"Joint","Joey","Grocery",""],["2026-01-11","Grocery",98.15,"Joint","Molly","Grocery",""],["2026-01-11","Grocery",18.0,"Joint","Joint","Grocery",""],["2026-01-11","Gas",24.0,"Molly Checking","Molly","Car",""],["2026-01-12","CVS",13.79,"Joint","Joint","Grocery",""],["2026-01-14","Eversource",51.18,"Molly Checking","Molly","Utilities",""],["2026-01-14","Gas",15.0,"Molly Checking","Molly","Car",""],["2026-01-15","Parking garage",10.0,"Molly Checking","Molly","Travel",""],["2026-01-15","EZ pass  ",50.0,"Molly Checking","Molly","Car",""],["2026-01-15","Babbel subscription",102.0,"Molly Checking","Molly","Other",""],["2026-01-16","Walgreens",27.0,"Joint","Joint","Grocery",""],["2026-01-17","Sofra",35.0,"Joint","Joint","Dining",""],["2026-01-17","Bama Tickets",1268.0,"Joint","Joint","Travel",""],["2026-01-18","Grocery",84.49,"Joint","Joey","Grocery",""],["2026-01-18","Grocery ",63.7,"Joint","Molly","Grocery",""],["2026-01-20","Gas",27.52,"Molly Checking","Molly","Car",""],["2026-01-22","Car wash ",19.0,"Molly Checking","Molly","Car",""],["2026-01-23","Grocery ",42.43,"Joint","Molly","Grocery",""],["2026-01-24","Grocery",111.63,"Joint","Molly","Grocery",""],["2026-01-24","Gas",20.61,"Molly Checking","Molly","Car",""],["2026-01-24","Travel",2108.06,"Joint","Joey","Travel","Swiss airline tickets"],["2026-01-24","Misc / Concert",64.76,"Molly Checking","Molly","Personal","Heated rivalry"],["2026-01-24","Travel",4.8,"Joint","Joey","Travel","MBTA"],["2026-01-24","Travel ",2.4,"Joint","Molly","Travel","Mbta"],["2026-01-26","Travel insurance ",513.0,"Joint","Molly","Travel","Faye travel insurance"],["2026-01-27","Supplements ",38.83,"Molly Checking","Molly","Other","Supplement"],["2026-01-27","Grocery",26.95,"Joint","Joey","Grocery",""],["2026-01-29","Gas",23.07,"Molly Checking","Molly","Car",""],["2026-01-29","Grocery",40.34,"Joint","Molly","Grocery",""],["2026-01-29","Supplements ",55.2,"Joint","Joint","Other",""],["2026-02-01","February Rent",2300.0,"Joint","Joint","Rent",""],["2026-01-30","Excise tax ",389.0,"Molly Checking","Molly","Car",""],["2026-02-01","Grocery",99.22,"Joint","Joey","Grocery",""],["2026-02-01","Grocery",58.48,"Joint","Molly","Grocery",""],["2026-02-03","HES Coursepack",59.4,"Joey Checking","Joey","Personal","School"],["2026-02-03","Gas",26.92,"Molly Checking","Molly","Car",""],["2026-02-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-02-05","Clothing ",31.26,"Molly Checking","Molly","Personal","Shirt"],["2026-02-05","CVS",47.21,"Joint","Joint","Grocery",""],["2026-02-06","Oil change / tire rotate ",130.0,"Molly Checking","Molly","Car",""],["2026-02-06","Tights",10.0,"Molly Checking","Molly","Personal","Clothing"],["2026-02-06","Hair trim ",25.0,"Molly Checking","Molly","Personal","💁‍♀️💁‍♀️💁‍♀️"],["2026-02-06","Airport restaurant ",92.45,"Joint","Joint","Dining",""],["2026-02-07","Spotify ",16.99,"Joint","Joint","Other","Spotify"],["2026-02-08","Breakfast",20.7,"Joint","Joint","Dining","Airport breakfast"],["2026-02-06","Train",2.4,"Joint","Joint","Travel",""],["2026-02-08","Ez pass ",50.0,"Molly Checking","Molly","Car","Ez pass"],["2026-02-08","Grocery",66.36,"Joint","Joint","Grocery",""],["2026-02-08","Grocery",99.9,"Joint","Molly","Grocery",""],["2026-02-09","Gas ",29.0,"Molly Checking","Molly","Car",""],["2026-02-09","Maine tickets ",665.0,"Joint","Joey","Travel",""],["2026-02-10","Maine Tickets",255.0,"Joint","Joey","Travel","Memere funeral"],["2026-02-11","Grocery",3.87,"Joint","Joint","Grocery",""],["2026-02-11","Groceries ",63.0,"Joint","Molly","Grocery","CVS"],["2026-02-12","Gas",25.11,"Molly Checking","Molly","Car",""],["2026-02-13","Misc ",18.86,"Molly Checking","Molly","Personal","Cards"],["2026-02-13","Pita Cambridge",18.3,"Joint","Joint","Dining","Rocky visit food"],["2026-02-14","Grocery, lunch supplies",91.88,"Joint","Joint","Grocery",""],["2026-02-14","Rice bucket",10.18,"Joey Checking","Joey","Other","Rice bucket training"],["2026-02-15","Vinal",81.59,"Joint","Joint","Dining","Vinal"],["2026-02-15","Grocery",64.33,"Joint","Joey","Grocery",""],["2026-02-15","Grocery",63.43,"Joint","Molly","Grocery",""],["2026-02-16","Airport",40.67,"Joey Checking","Joint","Dining","Airport bagels and coffee"],["2026-02-16","Groceries ",67.58,"Joint","Molly","Grocery",""],["2026-02-17","The feed",72.63,"Molly Checking","Molly","Personal","LMNT / supplements"],["2026-02-17","Shoes",170.78,"Joint","Joey","Personal","Running Shoes"],["2026-02-18","Grocery",25.75,"Joint","Joey","Grocery",""],["2026-02-18","Gas",27.4,"Molly Checking","Molly","Car",""],["2026-02-19","Batteries, ramen",10.39,"Joint","Joey","Other",""],["2026-02-20","Bathing suits 🧚‍♀️",285.0,"Molly Checking","Molly","Personal","Clothing"],["2026-02-20","Ez pass ",50.0,"Molly Checking","Molly","Car",""],["2026-02-21","Zurich Hotel",481.58,"Joint","Joint","Travel","Honeymoon Zurich"],["2026-02-21","Zurich hotel",533.8,"Joint","Joint","Travel","Honeymoon Zurich"],["2026-02-21","Grocery",98.43,"Joint","Joey","Grocery",""],["2026-02-21","Grocery ",103.55,"Joint","Molly","Grocery",""],["2026-02-21","Grocery ",53.73,"Joint","Joint","Grocery",""],["2026-02-21","Utilities ",63.74,"Joint","Joint","Utilities","Eversource"],["2026-02-21","Date night",115.58,"Joint","Joint","Dining","June Bug"],["2026-02-22","Grocery",30.83,"Joint","Joint","Grocery","Detergent, floss"],["2026-02-22","Grocery",24.31,"Joint","Joint","Grocery","Dinner"],["2026-02-22","Dress shirt",139.0,"Joey Checking","Joey","Personal",""],["2026-02-22","Gas",24.95,"Molly Checking","Molly","Car",""],["2026-02-24","Groceries ",56.68,"Joint","Joint","Grocery",""],["2026-02-26","Travel",199.31,"Joey Checking","Joey","Travel","Visit Davis, BOYS WEEKEND"],["2026-02-26","Gas",24.86,"Molly Checking","Molly","Car",""],["2026-02-27","Car",35.0,"Molly Checking","Molly","Car","State inspection"],["2026-02-27","Target",32.04,"Joint","Joint","Grocery","TP, Bathroom cleaner, deodorant, cetaphil"],["2026-02-27","Sloanes",17.25,"Joey Checking","Joey","Dining","Coworker drinks"],["2026-02-27","Siam Ginger ",87.3,"Joint","Joint","Dining",""],["2026-02-27","Vinal",12.0,"Molly Checking","Molly","Dining",""],["2026-02-27","Albertine Press",24.53,"Molly Checking","Molly","Personal",""],["2026-02-28","Breakfast with Drock",8.49,"Joey Checking","Joey","Dining",""],["2026-02-28","Momentus",97.65,"Molly Checking","Molly","Personal","Supplements"],["2026-02-28","Lunch ",28.54,"Joint","Joint","Dining","Vinal lunch"],["2026-02-28","Clothing",69.74,"Joey Checking","Joey","Personal",""],["2026-02-28","Heated night ",66.06,"Molly Checking","Molly","Dining","Dinner / coat check"],["2026-03-01","March Rent",2300.0,"Joint","Joint","Rent",""],["2026-03-01","Grocery",74.41,"Joint","Joey","Grocery",""],["2026-03-01","Grocery",107.17,"Joint","Molly","Grocery",""],["2026-03-01","Grocery",11.62,"Joint","Joint","Grocery",""],["2026-03-01","Auto insurance ",897.0,"Joint","Molly","Car","Insurance renewal"],["2026-03-03","Grocery",29.07,"Joint","Joey","Grocery",""],["2026-03-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-03-04","Curtain rod, drapes",69.04,"Joint","Joint","Other","Room redecorate"],["2026-03-04","Gas",15.0,"Molly Checking","Molly","Car",""],["2026-03-04","Whoop and blood work",590.77,"Joey Checking","Joey","Personal",""],["2026-03-05","Grocery",51.62,"Joint","Joey","Grocery",""],["2026-03-06","Therapy",120.0,"Molly Checking","Molly","Personal",""],["2026-03-06","Subscription",82.24,"Molly Checking","Molly","Personal","Rent the runway"],["2026-03-06","Whole Foods ",78.2,"Joint","Joint","Grocery",""],["2026-03-07","Early ",18.98,"Joint","Joint","Grocery","Fancy cheese"],["2026-03-07","Clothing",291.22,"Joey Checking","Joey","Personal",""],["2026-03-07","Clothing ",70.0,"Molly Checking","Molly","Personal",""],["2026-03-07","Drank",9.29,"Joint","Joint","Dining",""],["2026-03-08","Gas ",30.46,"Molly Checking","Molly","Car",""],["2026-03-08","Grocery",56.53,"Joint","Joey","Grocery",""],["2026-03-08","Grocery",70.99,"Joint","Molly","Grocery",""],["2026-03-08","Ez pass ",50.0,"Molly Checking","Molly","Car",""],["2026-03-08","Spotify duo ",18.99,"Joint","Joint","Personal","Subscriptions"],["2026-03-10","Skincare",81.8,"Joey Checking","Joey","Personal",""],["2026-03-11","Groceries ",28.94,"Joint","Joint","Grocery",""],["2026-03-12","Gas",27.95,"Molly Checking","Molly","Car",""],["2026-03-13","Target ",48.0,"Molly Checking","Molly","Personal","Tooth brush heads"],["2026-03-13","Groceries ",58.29,"Joint","Joint","Grocery","Supplies for 3/13 dinner"],["2026-03-13","Eye appointment ",1419.0,"Molly Checking","Molly","Medical","Visit + Contacts"],["2026-03-13","USPS",31.5,"Molly Checking","Molly","Personal","Beers to Bama"],["2026-03-13","Grocery",13.5,"Joint","Joey","Grocery",""],["2026-03-14","Pizza",32.94,"Joint","Joint","Dining","Starkbierfest"],["2026-03-14","Beers",35.0,"Molly Checking","Molly","Dining","Starkbierfest"],["2026-03-14","Mahoneys ",53.0,"Molly Checking","Molly","Personal","Pot"],["2026-03-15","Grocery ",16.86,"Joint","Molly","Grocery",""],["2026-03-15","Grocery",46.63,"Joint","Molly","Grocery",""],["2026-03-15","Hotel Beausite",812.54,"Joint","Joint","Travel","Honeymoon Interlaken"],["2026-03-15","Widowmaker",80.5,"Joint","Joint","Dining","Allston"],["2026-03-15","Hotel Montana ",1109.96,"Joint","Joint","Travel","Honeymoon Luzern"],["2026-03-16","Grocery",19.11,"Joint","Joey","Grocery",""],["2026-03-16","Zermatt Hotel",824.63,"Joint","Joint","Travel","Honeymoon Zermatt"],["2026-03-17","Grocery",54.95,"Joint","Joey","Grocery",""],["2026-03-17","Prescription",4.95,"Joint","Molly","Medical",""],["2026-03-17","Target ",66.38,"Joint","Joint","Grocery",""],["2026-03-18","Gas",32.19,"Molly Checking","Molly","Car",""],["2026-03-19","DC lunch with my bebeeee",82.45,"Joint","Joint","Dining",""],["2026-03-19","Florida magnet",6.44,"Joint","Joey","Personal",""],["2026-03-20","Publix ",81.85,"Joint","Joint","Grocery","Bama groceries"],["2026-03-20","Hair Product",46.22,"Joey Checking","Joey","Personal",""],["2026-03-21","Publix ",28.81,"Joint","Joint","Grocery","Bama groceries"],["2026-03-22","Rental gas",18.33,"Joint","Joint","Travel",""],["2026-03-22","Rental ",584.71,"Joint","Joint","Travel","Bama rental car"],["2026-03-22","Airport food",49.33,"Joint","Joint","Dining",""],["2026-03-22","Groceries ",111.19,"Joint","Joint","Grocery",""],["2026-03-23","Ez pass ",50.0,"Molly Checking","Molly","Car",""],["2026-03-23","Utilities ",43.96,"Joint","Joint","Utilities",""],["2026-03-23","Supplements ",47.78,"Molly Checking","Molly","Personal","Supplements"],["2026-03-22","Airport coffee",8.0,"Joint","Molly","Dining","Coffeeeeee"],["2026-03-24","Grocery",32.95,"Joint","Joey","Grocery",""],["2026-03-25","Gas",31.18,"Molly Checking","Molly","Car",""],["2026-03-27","Extra breakfast ",4.27,"Joint","Joey","Dining",""],["2026-03-27","Rent the runway ",89.4,"Molly Checking","Molly","Personal",""],["2026-03-27","Grocery",6.37,"Joint","Joey","Grocery",""],["2026-03-26","Protein Powder",90.83,"Joint","Joint","Grocery",""],["2026-03-27","Haircut ",135.0,"Molly Checking","Molly","Personal",""],["2026-03-27","Groceries ",27.4,"Joint","Molly","Grocery",""],["2026-03-28","Groceries ",96.85,"Joint","Joey","Grocery",""],["2026-03-28","Groceries ",51.23,"Joint","Molly","Grocery",""],["2026-03-28","Tequila",80.05,"Joey Checking","Joey","Other","Gift"],["2026-03-28","Cards",18.33,"Joint","Joey","Other","Gift"],["2026-03-28","Cards ",23.56,"Molly Checking","Molly","Other","Gift"],["2026-03-28","Drinks / Take out",140.0,"Molly Checking","Molly","Dining","Hurricanes / Bruins / Bell"],["2026-03-31","Extra Breakfast",4.27,"Joint","Joey","Dining","So hungry"],["2026-03-31","Tax Prep",260.0,"Joint","Joint","Other","Hills and Frank Financial group, Jessica Holt"],["2026-03-31","Grocery",23.68,"Joint","Joey","Grocery",""],["2026-04-01","Grocery",36.37,"Joint","Joey","Grocery",""],["2026-03-31","Gas",25.0,"Molly Checking","Molly","Car",""],["2026-04-01","April Rent",2300.0,"Joint","Joint","Rent",""],["2026-04-02","Airport noms ",26.0,"Joint","Joint","Dining","Breakfast"],["2026-04-02","Lunch Spiga",42.55,"Joint","Joint","Dining",""],["2026-04-02","Uber to/ from ",71.97,"Molly Checking","Molly","Travel","To Bos / From SJ"],["2026-04-02","Azalea",209.53,"Joint","Joint","Dining","Ok sushi, good fusion udon, great cocktails"],["2026-04-02","Factoria ",43.62,"Joint","Joint","Dining","Booze, fun dancing spot"],["2026-04-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-04-04","Fort",20.0,"Joint","Joint","Travel",""],["2026-04-04","Pina Colada, Ostracasa",23.6,"Joint","Joint","Dining",""],["2026-04-05","Magnet",9.92,"Joint","Joey","Personal",""],["2026-04-05","Water and snacks",23.01,"Joint","Joint","Dining",""],["2026-04-05","Taxi",37.38,"Joint","Joint","Travel",""],["2026-04-05","Grocery",87.77,"Joint","Joint","Grocery",""],["2026-04-05","Uber",7.97,"Joint","Joint","Travel",""],["2026-04-06","Lily Allen Tix",104.65,"Molly Checking","Molly","Personal","Music!!"],["2026-04-06","Grocery",23.41,"Joint","Joey","Grocery",""],["2026-04-06","Gas",37.19,"Molly Checking","Molly","Car",""],["2026-04-06","Tax payment ",327.0,"Molly Checking","Molly","Other","Taxes"],["2026-04-06","Grocery",75.64,"Joint","Molly","Grocery",""],["2026-04-06","Tax Payment",649.0,"Joey Checking","Joey","Other","2025"],["2026-04-07","Spotify sub ",18.99,"Joint","Joint","Other","Subscriptions"],["2026-04-07","CVS",27.3,"Joint","Joint","Grocery",""],["2026-04-08","Doja 🐈 ",87.0,"Molly Checking","Molly","Personal","Music!!"],["2026-04-08","Rent the runway ",137.0,"Molly Checking","Molly","Personal","Clothes! Subscription"],["2026-04-08","PR hotel ",1197.19,"Joint","Joint","Travel","Meh customer service, decent location"],["2026-04-09","Grocery",24.75,"Joint","Joey","Grocery","Wisconsin snacks"],["2026-04-10","Ez pass ",50.0,"Molly Checking","Molly","Car","Ez pass"],["2026-04-09","Accidental gas ⛽️ ",29.58,"Molly Checking","Molly","Car",""],["2026-04-10","Sibling wine ",42.0,"Molly Checking","Molly","Personal",""],["2026-04-10","USPS",25.3,"Molly Checking","Molly","Other","Darn tough / gifts"],["2026-04-11","Food/ booze ",68.45,"Molly Checking","Molly","Dining","Dinner and 1 drink at theater"],["2026-04-12","Groceries ",151.78,"Joint","Joint","Grocery",""],["2026-04-12","Wisconsin",29.54,"Joint","Joey","Dining",""],["2026-04-10","Wisconsin",90.0,"Joey Checking","Joey","Dining",""],["2026-04-12","Airport taxi",36.4,"Joey Checking","Joey","Travel","Taxi"],["2026-04-14","Trillium",27.94,"Joey Checking","Joey","Dining","Rapid TCT Conference"],["2026-04-15","Gas ",39.04,"Joint","Molly","Car",""],["2026-04-15","Grocery ",35.94,"Joint","Joint","Grocery",""],["2026-04-15","Utilities ",33.73,"Joint","Joint","Utilities",""],["2026-04-18","Pita Cambridge",36.6,"Joint","Joint","Dining","At home takeout, Joey is sick"],["2026-04-18","Groceries ",33.23,"Joint","Joint","Grocery",""],["2026-04-19","Groceries",63.08,"Joint","Joey","Grocery",""],["2026-04-19","Groceries ",98.97,"Joint","Molly","Grocery",""],["2026-04-19","Walgreens ",44.59,"Joint","Joint","Grocery","Tooth, TP, Medicine"],["2026-04-21","Gas",33.34,"Joint","Molly","Car",""],["2026-04-22","Bagel",4.27,"Joint","Joey","Grocery","Underweight"],["2026-04-24","Swap patreon ",54.0,"Molly Checking","Molly","Other","Annual membership"],["2026-04-24","Clothes ",110.04,"Molly Checking","Molly","Personal","Jeans / shirt"],["2026-04-24","PT Joint Ventures ",40.0,"Molly Checking","Molly","Medical","PT Joint ventures kenmore"],["2026-04-24","Hair trim ",25.0,"Molly Checking","Molly","Personal",""],["2026-04-24","Groceries ",20.0,"Molly Checking","Molly","Grocery",""],["2026-04-24","Groceries ",8.99,"Joint","Joint","Grocery","Ass cream"],["2026-04-25","Coffee",6.62,"Molly Checking","Molly","Dining",""],["2026-04-25","Clam spaghetti",37.72,"Joint","Joint","Grocery","Dinner"],["2026-04-26","Swiss bakers ",21.38,"Joint","Joint","Dining","Brekkie"],["2026-04-26","Groceries ",84.31,"Joint","Joey","Grocery",""],["2026-04-26","Groceries ",55.13,"Joint","Molly","Grocery",""],["2026-04-26","Ez pass ",50.0,"Joint","Molly","Car","Ez pass"],["2026-04-26","Supplements",70.1,"Molly Checking","Molly","Personal",""],["2026-04-27","Gas",34.46,"Joint","Molly","Car",""],["2026-04-28","Real ID",25.0,"Joint","Joey","Other",""],["2026-04-29","Grocery",30.56,"Joint","Joey","Grocery",""],["2026-04-29","CVS",13.23,"Joint","Joint","Grocery",""],["2026-04-29","Amazon ",43.1,"Molly Checking","Molly","Personal","Wedge cushion"],["2026-04-30","Gas",39.08,"Joint","Molly","Car",""],["2026-05-01","Bagel",4.27,"Joint","Joey","Grocery",""],["2026-05-01","Grocery",22.11,"Joint","Joey","Grocery",""],["2026-05-01","PT",40.0,"Molly Checking","Molly","Personal",""],["2026-05-01","Creemees ",16.92,"Molly Checking","Molly","Dining",""],["2026-05-01","Ren hen ",19.03,"Molly Checking","Molly","Dining",""],["2026-05-02","Grocery ",20.0,"Molly Checking","Molly","Grocery",""],["2026-05-03","Grocery",88.91,"Joint","Molly","Grocery",""],["2026-05-03","Gas",43.78,"Molly Checking","Molly","Car",""],["2026-05-03","Grocery",84.14,"Joint","Joey","Grocery",""],["2026-05-04","Amazon ",32.81,"Molly Checking","Molly","Other",""],["2026-05-04","Renters insurance ",91.0,"Molly Checking","Molly","Other",""],["2026-05-05","Amazon",60.53,"Molly Checking","Molly","Personal","Supplements"],["2026-05-06","Gas",33.18,"Joint","Molly","Car",""],["2026-05-06","Rain Boots",76.85,"Joey Checking","Joey","Personal","Replace bike boots"],["2026-05-07","Coffee with my bebe ",18.76,"Molly Checking","Molly","Dining",""],["2026-05-07","Groceries ",89.16,"Molly Checking","Molly","Grocery",""],["2026-05-01","May Rent",2300.0,"Joint","Joint","Rent",""],["2026-05-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-05-07","Spotify ",18.99,"Joint","Joint","Other","Subscriptions"],["2026-05-08","Elbow brace",16.95,"Joey Checking","Joey","Other",""],["2026-05-08","Prescription tooth paste ",20.0,"Molly Checking","Molly","Medical",""],["2026-05-08","PT",40.0,"Molly Checking","Molly","Medical",""],["2026-05-09","Wallet",14.99,"Joey Checking","Joey","Personal","Wallet chewing cards up"],["2026-05-07","Little donkey 🫏 ",150.0,"Molly Checking","Molly","Dining","Bebe birthday"],["2026-05-09","Groceries ",48.9,"Joint","Joey","Grocery",""],["2026-05-09","Groceries ",52.65,"Joint","Molly","Grocery",""],["2026-05-10","Groceries ",18.2,"Joint","Molly","Grocery",""],["2026-05-10","Groceries ",39.41,"Joint","Joey","Grocery",""],["2026-05-13","Gas ",25.0,"Joint","Molly","Car",""],["2026-05-13","Groceries",20.99,"Joint","Joey","Grocery",""],["2026-05-14","Bike bottom bracket",38.44,"Joey Checking","Joey","Personal",""],["2026-05-14","Upstate elevator ",125.28,"Molly Checking","Molly","Personal",""],["2026-05-15","Ez pass ",50.0,"Molly Checking","Molly","Car",""],["2026-05-15","Therapy ",120.0,"Molly Checking","Molly","Medical",""],["2026-05-15","PT Joint Ventures ",40.0,"Molly Checking","Molly","Medical",""],["2026-05-15","Eversource ",44.0,"Joint","Joint","Utilities",""],["2026-05-15","Oil change ",630.0,"Joint","Molly","Car",""],["2026-05-15","Gas",35.14,"Joint","Molly","Car",""],["2026-05-15","Groceries ",17.27,"Molly Checking","Molly","Grocery",""],["2026-05-15","Dinner",21.85,"Molly Checking","Molly","Dining",""],["2026-05-16","Spritz with Doug in NYC",12.0,"Joey Checking","Joey","Dining",""],["2026-05-16","Wine and lunch ",45.0,"Molly Checking","Molly","Dining",""],["2026-05-16","Groceries ",17.0,"Molly Checking","Molly","Grocery",""],["2026-05-16","Bakery",12.14,"Molly Checking","Molly","Dining",""],["2026-05-17","Treats",79.0,"Joey Checking","Joey","Other",""],["2026-05-17","Breakfast with Cindy ",17.98,"Molly Checking","Molly","Dining",""],["2026-05-17","Joint groceries ",162.0,"Joint","Joint","Grocery",""],["2026-05-17","Gas ",30.95,"Joint","Molly","Car",""],["2026-05-17","Whey Protein",90.83,"Joint","Joint","Grocery","Moving to 6 weeks"],["2026-05-19","Gas",31.96,"Joint","Molly","Car",""],["2026-05-22","Grocery",14.81,"Joint","Joint","Grocery",""],["2026-05-22","Gas",25.0,"Joint","Molly","Car",""],["2026-05-22","LMNT bundle ",135.0,"Molly Checking","Molly","Other",""],["2026-05-22","Shoes !",247.99,"Molly Checking","Molly","Personal",""],["2026-05-23","Harvard Annual Gym Membership",124.0,"Joint","Joint","Other",""],["2026-05-23","Treats",121.05,"Joey Checking","Joey","Other",""],["2026-05-23","Cards! ",31.88,"Joint","Joint","Other","Cards for friends"],["2026-05-23","Target ",80.24,"Joint","Joint","Grocery",""],["2026-05-23","Creemees ",14.0,"Joint","Joint","Dining",""],["2026-05-23","Groceries ",51.33,"Joint","Joint","Grocery",""],["2026-05-24","Groceries ",103.43,"Joint","Joey","Grocery",""],["2026-05-24","Groceries ",71.38,"Joint","Molly","Grocery",""],["2026-05-24","Groceries ",36.21,"Joint","Joint","Grocery",""],["2026-05-25","Amazon ",57.0,"Molly Checking","Molly","Other","Plant stuff 🪴"],["2026-05-26","Gas",39.86,"Joint","Molly","Car",""],["2026-05-28","Millionaire's club at State Park",85.0,"Joint","Joint","Dining",""],["2026-05-29","Booze to Kevin / USPS",34.0,"Joint","Joint","Other","Thank you for the Kuhl items"],["2026-05-29","Groceries ",15.15,"Joint","Molly","Grocery",""],["2026-05-29","Millionaires Burritos 🌝",45.63,"Joint","Joint","Dining",""],["2026-05-30","Vinal brekkie ",49.0,"Molly Checking","Molly","Dining",""],["2026-05-30","Movie snacks ",25.0,"Molly Checking","Molly","Dining",""],["2026-05-31","Groceries ",74.06,"Joint","Molly","Grocery",""],["2026-05-29","PT ",40.0,"Molly Checking","Molly","Medical",""],["2026-06-01","Parking permit ",40.0,"Molly Checking","Molly","Car",""],["2026-06-02","Gas",44.65,"Joint","Molly","Car",""],["2026-06-02","Amazon ",27.89,"Molly Checking","Molly","Other","Fruit fly traps"],["2026-06-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-06-04","Amazon",16.41,"Joey Checking","Joey","Other","Camera remote and perfume sample"],["2026-06-05","The feed ",69.95,"Molly Checking","Molly","Personal","Creatine and energy chews"],["2026-06-04","Groceries ",23.0,"Joint","Molly","Grocery",""],["2026-06-05","HBO subscriptions ",18.99,"Molly Checking","Molly","Other",""],["2026-06-01","June Rent",2300.0,"Joint","Joint","Rent",""],["2026-06-06","Breakfast with Bebe",31.23,"Joint","Joint","Dining","Black Sheep Bagel"],["2026-06-06","JV PT",40.0,"Molly Checking","Molly","Medical",""],["2026-06-06","Groceries",75.91,"Joint","Joey","Grocery",""],["2026-06-06","Groceries ",96.84,"Joint","Molly","Grocery",""],["2026-06-06","Target - trip supplies ",68.73,"Joint","Molly","Other","Plus paper towels and bath cleaner"],["2026-06-06","Bedsheets - Quince",317.0,"Joint","Joint","Other","Guest bedroom"],["2026-06-07","Spotify subscription ",18.99,"Joint","Joint","Other","Subscriptions"],["2026-06-08","Gas",37.0,"Joint","Molly","Car",""],["2026-06-09","Groceries",25.89,"Joint","Joint","Grocery",""],["2026-06-09","Hair DID ",110.0,"Joint","Molly","Personal","Full hair cut"],["2026-06-10","Gas",29.47,"Joint","Molly","Car",""],["2026-06-11","Uber to airport ",62.99,"Joint","Joint","Travel",""],["2026-06-17","Ez pass ",50.0,"Joint","Molly","Car",""],["2026-06-20","Grocery ",30.42,"Joint","Joint","Grocery",""],["2026-06-21","Grocery",55.24,"Joint","Joey","Grocery",""],["2026-06-21","Grocery",83.7,"Joint","Molly","Grocery",""],["2026-06-22","Grocery",68.49,"Joint","Joey","Grocery",""],["2026-06-24","Gas",25.0,"Joint","Molly","Car",""],["2026-06-23","Radiolab ",84.0,"Molly Checking","Molly","Other","Subscription"],["2026-06-24","The feed ",72.6,"Molly Checking","Molly","Other",""],["2026-06-25","Had",28.59,"Joint","Molly","Car",""],["2026-06-26","Grocery",52.57,"Joint","Joey","Grocery",""],["2026-06-26","Floss, toothpaste",35.04,"Joint","Joint","Grocery",""],["2026-06-27","Movies young Frankenstein",26.0,"Joint","Joint","Other",""],["2026-06-27","Burritos",25.88,"Joint","Joint","Dining",""],["2026-06-27","Target",26.84,"Joint","Joint","Grocery",""],["2026-06-27","Grocery",46.28,"Joint","Joint","Grocery",""],["2026-06-28","Grocery",64.31,"Joint","Joey","Grocery",""],["2026-06-28","Grocery",74.51,"Joint","Molly","Grocery",""],["2026-06-28","Dinner ",140.13,"Joint","Joint","Dining","Lobsta"],["2026-06-30","Grocery",9.04,"Joint","Joey","Grocery",""],["2026-07-01","Gas ",36.72,"Joint","Molly","Car",""],["2026-07-01","Grocery",42.91,"Joint","Joey","Grocery",""],["2026-07-03","PT Joint Ventures ",40.0,"Molly Checking","Molly","Medical",""],["2026-07-01","June Rent",2300.0,"Joint","Joint","Rent",""],["2026-07-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-07-03","Clothing and measuring cups",97.76,"Joint","Joint","Other","Clothing ($50)"],["2026-07-03","Grocery",32.08,"Joint","Joint","Grocery",""],["2026-07-03","Planting supplies",39.76,"Joint","Joey","Other",""],["2026-07-03","Day pass bkb ",35.0,"Joint","Molly","Other",""],["2026-07-04",NaN,38.58,"Joint","Joey","Grocery","Beach"],["2026-07-03","Din and ice cream ",77.0,"Molly Checking","Molly","Dining",""],["2026-07-04","Vinal ",29.0,"Molly Checking","Molly","Dining",""],["2026-07-04","Dinner ",130.0,"Joint","Joint","Dining",""],["2026-07-04","Bell in hand drinks ",50.0,"Molly Checking","Molly","Dining",""],["2026-07-05",NaN,26.86,"Joint","Joey","Grocery",""],["2026-07-05","Whole Foods ",99.34,"Joint","Molly","Grocery",""],["2026-07-05","Trader Joe's ",49.1,"Joint","Molly","Grocery",""],["2026-07-06","Ez pass ",50.0,"Molly Checking","Molly","Car",""],["2026-07-07","Gas",32.63,"Joint","Molly","Car",""],["2026-07-07","Spotify ",18.99,"Joint","Joint","Other","Subscriptions"],["2026-07-08",NaN,48.1,"Joint","Joey","Grocery",""],["2026-07-09","Theater tickets (outings and innings)",26.0,"Joint","Joint","Other",""],["2026-07-09","Miracle of Science",35.25,"Joint","Joey","Dining",""],["2026-07-10","Breakfast with Danielle",11.97,"Joint","Joey","Dining",""],["2026-07-10","Stamps",15.0,"Joint","Joint","Other",""],["2026-07-10","Cards and envelope",15.0,"Joint","Joey","Other",""],["2026-07-10","Channel 5",10.0,"Joint","Joey","Other",""],["2026-07-10",NaN,24.56,"Joint","Joint","Grocery",""],["2026-07-11","Dressers",599.12,"Joint","Joint","Other","Bob's Furniture"],["2026-07-11","Odyssey Movie Tix",35.0,"Joint","Joint","Other",""],["2026-07-11","Grocery",20.59,"Joint","Joint","Grocery",""],["2026-07-11","Gas",37.0,"Joint","Molly","Car",""],["2026-07-12","Grocery",53.59,"Joint","Molly","Grocery",""],["2026-07-12","Grocery",147.66,"Joint","Joey","Grocery",""],["2026-07-12","Grocery",29.2,"Joint","Molly","Grocery",""],["2026-07-14","Shipping for Mac",9.45,"Joint","Joey","Other",""],["2026-07-14","iPhone Case",33.28,"Joint","Joey","Personal",""],["2026-07-16","Gas",32.91,"Joint","Molly","Car",""],["2026-07-17","R+Co hair stuff",76.51,"Molly Checking","Molly","Personal",""],["2026-07-17","PT",40.0,"Molly Checking","Molly","Medical",""],["2026-07-17","St Germaine Lunch",40.52,"Joint","Joint","Dining",""],["2026-07-17","Hair trim ",25.0,"Molly Checking","Molly","Personal",""],["2026-07-17","Utilities ",46.96,"Joint","Joint","Utilities",""],["2026-07-17","Ole ",31.61,"Joint","Joint","Dining",""],["2026-07-17","Dock snacks ",15.47,"Joint","Joint","Grocery",""],["2026-07-18","Grocery",25.82,"Joint","Joey","Grocery",""],["2026-07-18","Grocery",91.11,"Joint","Joint","Grocery",""],["2026-07-18","Milk",5.99,"Molly Checking","Molly","Grocery",""],["2026-07-19","Grocery",54.48,"Joint","Joey","Grocery",""],["2026-07-19","Grocery ",70.66,"Joint","Molly","Grocery",""],["2026-07-19","Car registration renewal",60.0,"Molly Checking","Molly","Car",""],["2026-07-19","World Cup Final",75.13,"Joint","Joint","Dining",""],["2026-07-21",NaN,53.61,"Joint","Joey","Grocery",""],["2026-07-21","Money from Schwab to DCU",120.0,"Joint","Molly","Other","Cover cost of cell bill in Europe"],["2026-07-22","Gas",39.88,"Joint","Molly","Car",""],["2026-07-23","Grocery",39.47,"Joint","Molly","Grocery",""],["2026-07-24","Ez pass ",50.0,"Joint","Molly","Car",""],["2026-07-24","Cards ",13.81,"Joint","Molly","Other","Tiny turns"],["2026-07-24","Promotion Dinner Bebe",193.04,"Joint","Joey","Dining","La Royal, Cambridge"],["2026-07-24","Promotion ass cream ",19.22,"Joint","Joint","Dining",""],["2026-07-25","Target",90.94,"Joint","Joint","Grocery","Target, Whole Foods Beach run"],["2026-07-26","Grocery ",64.04,"Joint","Molly","Grocery",""],["2026-07-26","Grocery",97.59,"Joint","Joey","Grocery",""],["2026-07-26","Grocery ",46.36,"Joint","Molly","Grocery",""],["2026-07-27","Grocery",40.48,"Joint","Molly","Grocery",""],["2026-07-27","Mexico All Resort",1343.0,"Joint","Joint","Travel","Mexico lodging!"],["2026-07-28","Gas",37.17,"Joint","Molly","Car",""],["2026-07-28","Wine and veg",26.97,"Joint","Molly","Grocery",""],["2026-07-29","Treats",54.75,"Joey Checking","Joey","Other",""],["2026-07-29","Grad school payment",40.0,"Joint","Joey","Other",""],["2026-07-30","Road snacks",34.71,"Joint","Joint","Grocery",""],["2026-07-30","Gas",28.0,"Joint","Joint","Travel",""],["2026-07-30","Campsite ",104.0,"Joint","Joint","Travel",""],["2026-07-31","Presi dinner",29.07,"Joint","Joint","Dining",""],["2026-08-01","August Rent",2300.0,"Joint","Joint","Rent",""],["2026-08-01","Munroe Diner",48.04,"Joint","Joint","Dining",""],["2026-08-01","Lunch Conway ",65.05,"Joint","Joint","Dining",""],["2026-08-01","Dinner Conway ",126.0,"Joint","Joint","Dining",""],["2026-08-02","Groceries ",96.96,"Joint","Joint","Grocery",""],["2026-08-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-08-03","Groceries ",204.89,"Joint","Joint","Grocery",""],["2026-08-04","Beach lunch",66.88,"Joint","Joint","Dining",""],["2026-08-05","Shorties lunch ",25.17,"Joint","Joint","Dining",""],["2026-08-06","Groceries ",47.89,"Joint","Joint","Grocery",""],["2026-08-06","Gas",35.38,"Joint","Molly","Car",""],["2026-08-07","Spotify ",18.99,"Joint","Joint","Other","Subscriptions"],["2026-08-06","Tiki drinks lulus",86.0,"Joint","Joint","Other","Johnny Malone"],["2026-08-07","York dranks ",193.0,"Joint","Joint","Dining",""],["2026-08-08","Lunch",120.0,"Joint","Joint","Dining",""],["2026-08-09","Grocery",155.25,"Joint","Joey","Grocery",""],["2026-08-09","Grocery",77.68,"Joint","Molly","Grocery",""],["2026-08-09","Bow Market",40.0,"Joint","Joint","Dining",""],["2026-08-11","Grocery ",86.0,"Molly Checking","Molly","Grocery",""],["2026-08-11","Movie tickets ",30.0,"Joint","Molly","Other",""],["2026-08-13","Gas",42.72,"Joint","Molly","Car",""],["2026-08-13","Grocery ",39.4,"Joint","Molly","Grocery",""],["2026-08-14","EZ Pass",50.0,"Joint","Molly","Car",""],["2026-08-14","Breakfast noms ",21.7,"Joint","Molly","Dining","La saison"],["2026-08-14","Car oil change ",87.0,"Joint","Molly","Car",""],["2026-08-14","Haircut ",110.0,"Joint","Molly","Other",""],["2026-08-14","Lanners Noodle",40.77,"Joint","Joint","Dining","Lanners Noodle"],["2026-08-15","At home movie night",49.06,"Joint","Joint","Other",""],["2026-08-15","usps ",59.0,"Joint","Molly","Other",""],["2026-08-16","Grocery",81.87,"Joint","Joey","Other",""],["2026-08-16","Clothes",39.37,"Joint","Joey","Personal",""],["2026-08-16","Marshall's ",50.97,"Joint","Molly","Personal",""],["2026-08-16","Towels and Bianca",56.26,"Joint","Joint","Other",""],["2026-08-16","Grocery ",72.99,"Joint","Molly","Grocery",""],["2026-08-18","Grocery ",44.28,"Joint","Molly","Grocery",""],["2026-08-19","Gas",37.96,"Joint","Molly","Car",""],["2026-08-20","Grocery",19.46,"Joint","Joint","Grocery",""],["2026-08-20","Back bay fit DXA",150.0,"Molly Checking","Molly","Other",""],["2026-08-20","Protein Powder",90.83,"Joint","Joint","Grocery",""],["2026-08-21","Undershirts",25.0,"Joey Checking","Joey","Personal",""],["2026-08-21","Gas",38.95,"Joint","Molly","Car",""],["2026-08-21","Hut snacks / g station snacks ",14.2,"Joint","Molly","Dining",""],["2026-08-22","The feed ",86.21,"Molly Checking","Molly","Other",""],["2026-08-22","Bday cards",12.48,"Joint","Joey","Other",""],["2026-08-22","Bow market noms ",24.0,"Joint","Molly","Dining",""],["2026-08-22","Dinner ",48.0,"Joint","Joint","Dining",""],["2026-08-23","Grocery",119.91,"Joint","Joey","Grocery",""],["2026-08-23","Grocery ",123.58,"Joint","Molly","Grocery",""],["2026-08-23","Garmin Cirqa band ",212.0,"Molly Checking","Molly","Other","Fitness / lifestyle tracker"],["2026-08-23","Amazon",53.57,"Molly Checking","Molly","Other","Temp tattoos for Maddie Bebe shower"],["2026-08-26","Harvard Coursepack",126.4,"Joey Checking","Joey","Other","Grad school reading"],["2026-08-27","Gas 💨 ",38.77,"Joint","Molly","Car",""],["2026-08-27","Ez pass ",50.0,"Joint","Molly","Car",""],["2026-08-28","Parlor",44.98,"Joint","Joint","Dining",""],["2026-08-28","MM dinner out ",104.77,"Joint","Molly","Dining","Moona"],["2026-08-29","Bova's Arincinni",21.84,"Joint","Joint","Dining",""],["2026-08-29","Tiny turns ",32.41,"Joint","Molly","Other","Cards"],["2026-08-29","Lunch Nightshift ",65.0,"Joint","Joint","Dining",""],["2026-08-29","Groceries ",28.42,"Joint","Joint","Grocery",""],["2026-08-30","Grocery",128.45,"Joint","Joey","Grocery",""],["2026-08-30","Grocery ",64.38,"Joint","Molly","Grocery",""],["2026-08-31","Car insurance ",897.0,"Joint","Molly","Car",""],["2026-08-17","Eversource ",100.27,"Joint","Joint","Utilities",""],["2026-09-02","Gas",35.58,"Joint","Molly","Car",""],["2026-09-02","September Rent",2300.0,"Joint","Joint","Rent",""],["2026-09-02","Grocery ",55.21,"Joint","Molly","Grocery",""],["2026-09-02","The feed ",71.27,"Joint","Molly","Other","Supplements"],["2026-09-03","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-09-03","Grocery",87.44,"Joint","Joey","Grocery",""],["2026-09-04","CVS",51.0,"Joint","Molly","Grocery",""],["2026-09-04","Withdrawal laundry $$",200.0,"Molly Checking","Molly","Other",""],["2026-09-04","Pita",41.29,"Joint","Joint","Dining",""],["2026-09-05","Mei Mei dumplings ",59.18,"Joint","Joint","Dining",""],["2026-09-06","Grocery",62.7,"Joint","Joey","Grocery",""],["2026-09-06","Trader Joe's ",50.51,"Joint","Molly","Grocery",""],["2026-09-06","HBO sub",18.49,"Molly Checking","Molly","Other",""],["2026-09-06","Whole Foods ",41.34,"Joint","Molly","Grocery",""],["2026-09-07","Treats",301.51,"Joey Checking","Joey","Other","9/30/2026,10/1/2026"],["2026-09-07","Grocery",52.25,"Joint","Joint","Grocery",""],["2026-09-07","Spotify ",18.99,"Joint","Joint","Other","Subscription"],["2026-09-07","Gas",45.05,"Joint","Molly","Car",""],["2026-09-09","Momentus ",108.0,"Joint","Molly","Other","Creatine"],["2026-09-10","Concord Bus Tickets",55.0,"Joey Checking","Joey","Travel",""],["2026-09-11","MM hike safe card ",25.0,"Joint","Molly","Other",""],["2026-09-11","Crew dinner ",80.0,"Joint","Joint","Dining","Siam Ginger"],["2026-09-12","Groceries ",94.26,"Joint","Molly","Grocery",""],["2026-09-12","Uber",23.94,"Joint","Molly","Travel",""],["2026-09-13","Vinal brekkie ",28.06,"Joint","Molly","Dining",""],["2026-09-13","Groceries",53.21,"Joint","Joint","Grocery",""],["2026-09-13","MBTA",2.4,"Joint","Joey","Travel",""],["2026-09-12","MBTA",2.4,"Joint","Molly","Travel",""],["2026-09-13","EZ pass",50.0,"Joint","Molly","Car",""],["2026-09-14","Gas",41.91,"Joint","Molly","Car",""],["2026-09-14","Grocery",90.05,"Joint","Joey","Grocery",""],["2026-09-14","CVS",33.82,"Joint","Joint","Other",""],["2026-09-15","LMNT",90.0,"Joint","Molly","Other",""],["2026-09-15","Eversource ",64.68,"Joint","Joint","Utilities",""],["2026-09-17","Mommas HUNGRY",20.0,"Joint","Molly","Other",""],["2026-09-17","BW Lincoln NH",241.3,"Joint","Molly","Travel",""],["2026-09-18","Me undies ",103.0,"Molly Checking","Molly","Personal",""],["2026-09-18","Groceries ",65.02,"Joint","Joint","Grocery",""],["2026-09-17","Gas",30.17,"Joint","Molly","Car",""],["2026-09-17","Gas station snacks",12.12,"Joint","Molly","Dining",""],["2026-09-17","CrossFit",30.0,"Joint","Joey","Personal",""],["2026-09-19","La saison breakfast",56.17,"Joint","Joint","Dining",""],["2026-09-19","Bday Bebe",145.98,"Joint","Joint","Dining",""],["2026-09-20","Grocery ",119.27,"Joint","Joey","Grocery",""],["2026-09-20","Grocery ",83.43,"Joint","Molly","Grocery",""],["2026-09-20","Protein Powder, Transparent Labs",89.1,"Joint","Joint","Grocery",""],["2026-09-20","Marc Rebillet",195.86,"Joint","Joint","Other","Honeymoon Funds"],["2026-09-20","Amtrak to New York",264.0,"Joint","Joint","Travel","Honeymoon Funds"],["2026-09-20","Amazon mesh bags",11.86,"Joey Checking","Joey","Personal",""],["2026-09-20","Grocery ",73.46,"Joint","Joint","Grocery",""],["2026-09-21","Gas",39.38,"Joint","Molly","Car",""],["2026-09-21","Quest D",335.0,"Molly Checking","Molly","Personal",""],["2026-09-23","Maddie Bebe shower ",150.0,"Joint","Joint","Other","Check cashed"],["2026-09-23","CVS",23.0,"Joint","Molly","Other",""],["2026-09-24","Tree House ",26.0,"Joint","Molly","Grocery",""],["2026-09-24","Gas",35.56,"Joint","Molly","Car",""],["2026-09-25","Vinal ",54.0,"Joint","Joint","Dining",""],["2026-09-25","Road snacks",16.5,"Joint","Joint","Grocery",""],["2026-09-25","Palmer Lane ",40.06,"Joint","Molly","Other",""],["2026-09-27","Gas",32.35,"Joint","Molly","Car",""],["2026-09-27","Grocery ",63.48,"Joint","Molly","Grocery",""],["2026-09-27","Common man NH",18.99,"Joint","Joint","Dining",""],["2026-09-27","Grocery ",16.97,"Joint","Molly","Grocery",""],["2026-09-27","Grocery ",100.6,"Joint","Joey","Grocery",""],["2026-09-29","Coolidge corner ",19.75,"Joint","Molly","Other",""],["2026-09-29","Gas",39.41,"Joint","Molly","Car",""],["2026-10-08","Tool",91.32,"Joey Checking","Joey","Personal",""],["2026-10-02","Neck clean up ",25.0,"Joint","Molly","Personal",""],["2026-10-02","Groceries ",154.0,"Joint","Joint","Grocery",""],["2026-10-02","Cards / Tiny turns ",18.06,"Joint","Joint","Other",""],["2026-10-02","Xfinity",65.0,"Joint","Joint","Utilities",""],["2026-10-03","Donut 😜",5.68,"Joint","Molly","Dining",""],["2026-10-03","PV Flights! 🇲🇽 ",1297.23,"Joint","Joint","Travel","Will move money over, Honeymoon Funds"],["2026-10-03","Halloween contacts ",65.45,"Joint","Joint","Other",""],["2026-10-04","Boulder project ",35.0,"Molly Checking","Molly","Other",""],["2026-10-04","Ez pass ",50.0,"Joint","Molly","Car",""],["2026-10-04","Grocery",151.63,"Joint","Joey","Grocery",""],["2026-10-06",".gas",41.39,"Joint","Molly","Car",""],["2026-10-07","Spotify ",18.99,"Joint","Joint","Other",""],["2026-10-07","Gas station snacks ",8.89,"Joint","Molly","Other",""],["2026-10-08","Shoes ",85.03,"Joey Checking","Joey","Personal",""],["2026-10-08","Booze ",42.15,"Joint","Molly","Dining",""],["2026-10-09","Momentous ",65.43,"Joint","Molly","Personal","Subscription"],["2026-10-09","Walgreens",62.49,"Joint","Molly","Other","Toothbrush heads"],["2026-10-09","Whole Foods ",80.49,"Joint","Joint","Grocery","Game night ingredients"],["2026-10-09","The feed ",54.64,"Molly Checking","Molly","Other",""],["2026-10-09","Post office ",41.0,"Molly Checking","Molly","Other","Bubble wrap / shipping cost"],["2026-10-10","Target",71.0,"Joint","Joint","Grocery","House things"],["2026-10-10","Vinal snackies ",14.0,"Joint","Joint","Dining",""],["2026-10-11","Grocery",109.38,"Joint","Joey","Grocery",""],["2026-10-11","Grocery ",78.15,"Joint","Molly","Grocery",""],["2026-10-22","Treats",70.86,"Joey Checking","Joey","Personal",""],["2026-10-12","Gas",38.1,"Joint","Molly","Car",""],["2026-10-14","Eversource ",58.11,"Joint","Joint","Utilities",""],["2026-10-14","October rent ",2300.0,"Joint","Joint","Rent",""],["2026-10-15","Gas",44.71,"Joint","Molly","Car",""],["2026-10-15","Grocery ",73.23,"Joint","Molly","Grocery",""],["2026-10-15","Grocery",34.14,"Joint","Joey","Grocery",""],["2026-10-16","Boulder project ",35.0,"Molly Checking","Molly","Other",""],["2026-10-17","1369 coffee",18.0,"Joint","Joint","Dining",""],["2026-10-17","Grocery",10.48,"Joint","Joint","Grocery",""],["2026-10-17","Ole with Teddy and Rachel",80.48,"Joint","Joint","Dining",""],["2026-10-17","AMC renewal",70.0,"Molly Checking","Molly","Other",""],["2026-10-18","Grocery",91.09,"Joint","Joey","Grocery",""],["2026-10-18","Grocery",81.47,"Joint","Molly","Grocery",""],["2026-10-17","Bevs at HOB",19.2,"Joint","Joint","Other",""],["2026-10-20","Ez pass ",50.0,"Joint","Molly","Car",""],["2026-10-21","Gas",35.24,"Joint","Molly","Car",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""],[null,"",null,"","","",""]];
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+const fmt2 = n => '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DOW = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const PEOPLE = ['Joey','Molly','Joint'];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const PCOL = {Joey:'--joey',Molly:'--molly',Joint:'--joint'};
+
+let rows = [], notes = [], state = {who:'All', month:'All', cat:null, sort:['date',-1], q:''};
+
+function normDesc(s){
+  s = String(s||'').trim().replace(/\s+/g,' ').toLowerCase();
+  if (s==='groceries') s='grocery';
+  if (s==='haircut'||s==='hair cut') s='haircut';
+  return s;
+}
+function titleCase(s){return s.replace(/\b\w/g,c=>c.toUpperCase())}
+
+function ingest(raw){ // raw: array of [dateISO, desc, amt, account, owner, cat, note]
+  const out=[]; let dropped=0;
+  raw.forEach(r=>{
+    const amt = Number(r[2]);
+    const d = new Date(r[0]+'T12:00:00');
+    if (!r[0] || isNaN(amt) || isNaN(d)) {dropped++; return;}
+    out.push({d, iso:r[0], m:r[0].slice(0,7), desc:String(r[1]||'').trim(), key:normDesc(r[1]), amt,
+      acct:r[3]||'', owner:r[4]||'Joint', cat:r[5]||'Other', note:String(r[6]||'').trim(), dow:(d.getDay()+6)%7});
+  });
+  out.sort((a,b)=>a.d-b.d);
+  return {out,dropped};
+}
+
+function monthsList(){return [...new Set(rows.map(r=>r.m))].sort()}
+function monthLabel(m){const[y,mm]=m.split('-');return MON[+mm-1]+' '+y}
+function isPartial(m){ // last month of data and data ends before month end
+  const ms = monthsList(); if (m!==ms[ms.length-1]) return false;
+  const last = rows[rows.length-1].d, [y,mm]=m.split('-').map(Number);
+  return last.getDate() < new Date(y,mm,0).getDate();
+}
+
+function filtered(skipCat){
+  return rows.filter(r=>(state.who==='All'||r.owner===state.who)&&(state.month==='All'||r.m===state.month)&&(skipCat||!state.cat||r.cat===state.cat));
+}
+const sum = a => a.reduce((s,r)=>s+r.amt,0);
+function groupSum(a,f){const m=new Map();a.forEach(r=>{const k=f(r);m.set(k,(m.get(k)||0)+r.amt)});return m}
+
+/* ---------- tooltip ---------- */
+const tip=$('tip');
+function showTip(e,html){tip.innerHTML=html;tip.style.display='block';const w=tip.offsetWidth;let x=e.clientX+12,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-12;x=Math.max(8,Math.min(x,innerWidth-w-8));tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideTip(){tip.style.display='none'}
+let tipT;
+document.addEventListener('mousemove',e=>{if(tip.style.display==='block'&&e.target.closest&&!e.target.closest('[data-tip]'))hideTip()});
+document.addEventListener('click',e=>{if(!e.target.closest('[data-tip]'))hideTip()});
+function bindTips(root){
+  root.querySelectorAll('[data-tip]').forEach(el=>{
+    el.addEventListener('mousemove',e=>showTip(e,el.dataset.tip));
+    el.addEventListener('mouseleave',hideTip);
+    el.addEventListener('click',e=>{showTip(e,el.dataset.tip);clearTimeout(tipT);tipT=setTimeout(hideTip,2500)});
+  });
+}
+const fmtK=n=>n>=1000?'$'+(n/1000).toFixed(n>=10000||n%1000===0?0:1).replace(/\.0$/,'')+'k':'$'+Math.round(n);
+const cw=el=>el.clientWidth||Math.min(innerWidth-68,652);
+
+/* ---------- controls ---------- */
+function buildControls(){
+  const seg=$('whoSeg'); seg.innerHTML='';
+  ['All',...PEOPLE].forEach(p=>{const b=document.createElement('button');b.textContent=p;b.setAttribute('aria-pressed',state.who===p);b.onclick=()=>{state.who=p;render()};seg.appendChild(b)});
+  const sel=$('monthSel'); sel.innerHTML='<option value="All">All months</option>'+monthsList().map(m=>`<option value="${m}">${monthLabel(m)}${isPartial(m)?' (to date)':''}</option>`).join('');
+  sel.value=state.month; sel.onchange=()=>{state.month=sel.value;render()};
+}
+
+/* ---------- KPIs ---------- */
+function kpis(f){
+  const ms=monthsList().filter(m=>!isPartial(m)&&(state.month==='All'||m===state.month));
+  const byM=groupSum(f.filter(r=>ms.includes(r.m)),r=>r.m);
+  const avg = ms.length? [...byM.values()].reduce((a,b)=>a+b,0)/ms.length : 0;
+  const nonRent=f.filter(r=>r.cat!=='Rent');
+  const days=new Set(f.map(r=>r.iso)).size||1;
+  const items=[
+    ['Total spent',fmt(sum(f)),`${f.length} transactions`],
+    ['Average month',state.month==='All'?fmt(avg):'–',state.month==='All'?`${ms.length} complete months`:'pick All months'],
+    ['Without rent',fmt(sum(nonRent)),`${fmt(sum(nonRent)/days)} per day with spending`],
+    ['Typical purchase',fmt2(median(f.map(r=>r.amt))),'median transaction'],
+  ];
+  $('kpis').innerHTML=items.map(i=>`<div class="kpi"><div class="l">${i[0]}</div><div class="v">${i[1]}</div><div class="n">${i[2]}</div></div>`).join('');
+}
+function median(a){if(!a.length)return 0;a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length%2?a[m]:(a[m-1]+a[m])/2}
+
+/* ---------- insights ---------- */
+function insights(f){
+  const L=[]; const total=sum(f); if(!f.length){$('insights').innerHTML='<li>No transactions match these filters.</li>';return}
+  const byCat=[...groupSum(f,r=>r.cat)].sort((a,b)=>b[1]-a[1]);
+  const pct=x=>Math.round(x/total*100)+'%';
+  // concentration
+  const top2=byCat.slice(0,2);
+  L.push(['Biggest costs',`<b>${top2[0][0]}</b> takes ${pct(top2[0][1])} of spending (${fmt(top2[0][1])})${top2[1]?`, followed by <b>${top2[1][0]}</b> at ${pct(top2[1][1])} (${fmt(top2[1][1])})`:''}.`]);
+  if(state.who==='All'&&!state.cat&&state.month==='All'){const I=getInc(),full=monthsList().filter(m=>!isPartial(m)),bm=incomeSpend().out,avg=full.reduce((s,m)=>s+bm.get(m),0)/full.length,rent=sum(rows.filter(r=>r.cat==='Rent'))/monthsList().length;
+    L.push(['Income',`Spending from income averages <b>${Math.round(avg/I.tot*100)}%</b> of estimated household take-home (${fmt(avg)} of ${fmt(I.tot)} a month), leaving about <b>${fmt(I.tot-avg)}</b>. Rent alone is ${Math.round(rent/I.tot*100)}% of take-home.`])}
+  // fixed vs flexible
+  const fixed=sum(f.filter(r=>r.cat==='Rent'||r.cat==='Utilities'));
+  if(fixed>0&&fixed<total) L.push(['Fixed vs flexible',`Rent and utilities are <b>${pct(fixed)}</b> of the total. The other <b>${fmt(total-fixed)}</b> is spending you can change.`]);
+  // food
+  const groc=f.filter(r=>r.cat==='Grocery'), din=f.filter(r=>r.cat==='Dining');
+  if(groc.length&&din.length){
+    const days=(f[f.length-1].d-f[0].d)/864e5+1, wks=Math.max(days/7,1);
+    L.push(['Food',`Groceries run about <b>${fmt(sum(groc)/wks)} a week</b> (${groc.length} trips, ${fmt2(sum(groc)/groc.length)} each). Eating out is ${din.length} meals at ${fmt2(sum(din)/din.length)} on average, ${fmt(sum(din))} in all, or <b>${Math.round(sum(din)/sum(groc)*100)}¢</b> for every grocery dollar.`]);
+  }
+  // spike months
+  if(state.month==='All'){
+    const ms=monthsList().filter(m=>!isPartial(m)); const byM=groupSum(f.filter(r=>ms.includes(r.m)),r=>r.m);
+    if(byM.size>2){
+      const e=[...byM].sort((a,b)=>b[1]-a[1]); const [pm,pv]=e[0]; const avg=[...byM.values()].reduce((a,b)=>a+b,0)/byM.size;
+      const inM=[...groupSum(f.filter(r=>r.m===pm),r=>r.cat)].sort((a,b)=>b[1]-a[1])[0];
+      const lo=e[e.length-1];
+      L.push(['Spikes',`<b>${monthLabel(pm)}</b> was the heaviest month at ${fmt(pv)}, ${Math.round((pv/avg-1)*100)}% above average, mostly ${inM[0]} (${fmt(inM[1])}). The lightest was <b>${monthLabel(lo[0])}</b> at ${fmt(lo[1])}.`]);
+      // trend without rent & travel
+      const flex=f.filter(r=>r.cat!=='Rent'&&r.cat!=='Travel'&&ms.includes(r.m)); const fm=groupSum(flex,r=>r.m);
+      const keys=[...fm.keys()].sort(); if(keys.length>=6){
+        const l3=keys.slice(-3).reduce((s,k)=>s+fm.get(k),0)/3, p3=keys.slice(-6,-3).reduce((s,k)=>s+fm.get(k),0)/3;
+        const ch=(l3/p3-1)*100;
+        L.push(['Trend',`Leaving out rent and travel, the last three complete months averaged <b>${fmt(l3)}</b> against ${fmt(p3)} in the three before. That is <b>${Math.abs(Math.round(ch))}% ${ch<0?'lower':'higher'}</b>.`]);
+      }
+    }
+  }
+  // travel
+  const tr=f.filter(r=>r.cat==='Travel'); if(tr.length>3&&state.cat!=='Travel'){
+    const big=[...tr].sort((a,b)=>b.amt-a.amt)[0];
+    L.push(['Travel',`Travel totals <b>${fmt(sum(tr))}</b> across ${tr.length} charges. The largest is ${fmt(big.amt)}${big.note?` (${big.note})`:` (${big.desc})`} on ${MON[big.d.getMonth()]} ${big.d.getDate()}.`]);
+  }
+  // who
+  if(state.who==='All'){
+    const nr=f.filter(r=>r.cat!=='Rent'); const g=groupSum(nr,r=>r.owner), t=sum(nr);
+    L.push(['Who spends',`Outside of rent, <b>Joint</b> purchases are ${Math.round((g.get('Joint')||0)/t*100)}%, <b>Molly</b> ${Math.round((g.get('Molly')||0)/t*100)}% (${fmt(g.get('Molly')||0)}) and <b>Joey</b> ${Math.round((g.get('Joey')||0)/t*100)}% (${fmt(g.get('Joey')||0)}).`]);
+  }
+  // recurring
+  const k=new Map(); rows.forEach(r=>{if(!k.has(r.key))k.set(r.key,[]);k.get(r.key).push(r)});
+  const rec=[...k].filter(([key,a])=>a.length>=4&&new Set(a.map(x=>x.m)).size>=4&&Math.max(...a.map(x=>x.amt))-Math.min(...a.map(x=>x.amt))<=Math.max(...a.map(x=>x.amt))*.25&&!/rent|gas|grocer|ez pass/.test(key));
+  if(rec.length) L.push(['Recurring',`Steady monthly-style charges: ${rec.map(([key,a])=>`<b>${titleCase(key)}</b> (${fmt2(sum(a)/a.length)})`).join(', ')}. Worth a check that each is still in use.`]);
+  // unlabeled bucket
+  const oth=byCat.find(c=>c[0]==='Other'); if(oth&&oth[1]/total>.08&&state.cat!=='Other') L.push(['Tidy-up',`<b>Other</b> holds ${fmt(oth[1])} (${pct(oth[1])}). Sorting these into real categories would sharpen every chart here.`]);
+  {const keep=['Biggest costs','Food','Spikes','Trend']; const k=L.filter(l=>keep.includes(l[0])); if(k.length)L.splice(0,L.length,...k)}
+  $('insights').innerHTML=L.map(l=>`<li><span class="tag">${l[0]}</span><span>${l[1]}</span></li>`).join('');
+}
+
+/* ---------- charts ---------- */
+function monthChart(f){
+  const ms=monthsList(), el=$('monthChart'), W=Math.max(cw(el),280), narrow=W<520, H=narrow?230:270, m={l:narrow?40:48,r:6,t:narrow?10:22,b:24};
+  const data=ms.map(mo=>{const o={m:mo,t:0};PEOPLE.forEach(p=>o[p]=0);f.filter(r=>r.m===mo).forEach(r=>{o[r.owner]=(o[r.owner]||0)+r.amt;o.t+=r.amt});return o});
+  const max=niceMax(Math.max(...data.map(d=>d.t),1));
+  const bw=(W-m.l-m.r)/ms.length, w=Math.min(bw*.68,56);
+  const y=v=>m.t+(H-m.t-m.b)*(1-v/max);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly spending stacked by owner">`;
+  for(let i=0;i<=3;i++){const v=max*i/3;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--grid')}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`}
+  data.forEach((d,i)=>{
+    const x=m.l+bw*i+(bw-w)/2; let acc=0; const part=isPartial(d.m);
+    const tipHtml=`<b>${monthLabel(d.m)}${part?' (to date)':''}: ${fmt(d.t)}</b>`+PEOPLE.filter(p=>d[p]).map(p=>`${p}: ${fmt(d[p])}`).join('<br>');
+    s+=`<g data-tip="${tipHtml.replace(/"/g,'&quot;')}" class="bar" data-m="${d.m}">`;
+    PEOPLE.forEach(p=>{const v=d[p];if(!v)return;const y0=y(acc),y1=y(acc+v);acc+=v;
+      s+=`<rect x="${x}" y="${y1}" width="${w}" height="${Math.max(y0-y1-1.5,1)}" fill="${css(PCOL[p])}" ${part?'fill-opacity=".55"':''} rx="2"/>`});
+    s+=`<rect x="${x-3}" y="${m.t}" width="${w+6}" height="${H-m.t-m.b}" fill="transparent"/>`;
+    if(d.t&&!narrow) s+=`<text class="val" x="${x+w/2}" y="${y(d.t)-5}" text-anchor="middle">${fmtK(d.t)}</text>`;
+    s+=`<text x="${x+w/2}" y="${H-7}" text-anchor="middle" ${state.month===d.m?'class="lab" font-weight="600"':''}>${bw>=26?MON[+d.m.slice(5)-1]:MON[+d.m.slice(5)-1][0]}${part?'*':''}</text></g>`;
+  });
+  s+='</svg>'; el.innerHTML=s; bindTips(el);
+  el.querySelectorAll('.bar').forEach(g=>g.addEventListener('click',()=>{state.month=state.month===g.dataset.m?'All':g.dataset.m;render()}));
+  $('monthLegend').innerHTML=PEOPLE.map(p=>`<span><i style="background:${css(PCOL[p])}"></i>${p}</span>`).join('');
+  const last=ms[ms.length-1];
+  $('monthNote').textContent=(isPartial(last)?`*${monthLabel(last)} runs through ${MON[rows[rows.length-1].d.getMonth()]} ${rows[rows.length-1].d.getDate()} only. `:'')+'Tap a month to filter. Joint means a shared purchase.';
+}
+function niceMax(v){const p=Math.pow(10,Math.floor(Math.log10(v)));for(const k of [1,1.5,2,2.5,3,4,5,6,8,10])if(k*p>=v)return k*p;return v}
+
+function catChart(){
+  const f=filtered(true), el=$('catChart'), total=sum(f), W=Math.max(cw(el),280), narrow=W<520;
+  const e=[...groupSum(f,r=>r.cat)].sort((a,b)=>b[1]-a[1]); const max=e.length?e[0][1]:1;
+  const rh=38, lw=narrow?72:92, vw=narrow?74:120, H=e.length*rh+4;
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spending by category">`;
+  e.forEach(([c,v],i)=>{const y=i*rh+2,bw=(W-lw-vw)*v/max; const sel=state.cat===c, dim=state.cat&&!sel;
+    const n=f.filter(r=>r.cat===c).length;
+    s+=`<g class="bar" data-c="${c}" data-tip="<b>${c}: ${fmt(v)}</b>${Math.round(v/total*100)}% of spending<br>${n} transactions, ${fmt2(v/n)} average">
+      <rect x="0" y="${y-2}" width="${W}" height="${rh}" fill="transparent"/>
+      <text class="lab" x="0" y="${y+21}" style="font-size:14px" ${sel?'font-weight="600"':''}>${c}</text>
+      <rect x="${lw}" y="${y+7}" width="${Math.max(bw,3)}" height="16" rx="3" fill="${css('--accent')}" ${dim?'fill-opacity=".3"':''}/>
+      <text class="val" x="${lw+Math.max(bw,3)+6}" y="${y+20}">${narrow?fmtK(v):fmt(v)} · ${Math.round(v/total*100)}%</text></g>`});
+  s+='</svg>'; el.innerHTML=s; bindTips(el);
+  el.querySelectorAll('.bar').forEach(g=>g.addEventListener('click',()=>{state.cat=state.cat===g.dataset.c?null:g.dataset.c;render()}));
+  $('catChip').innerHTML=state.cat?`<span class="chip">Category: ${state.cat}<button aria-label="Clear category filter" id="clr">×</button></span>`:'';
+  if(state.cat)$('clr').onclick=()=>{state.cat=null;render()};
+}
+
+function whoTable(f){
+  const cats=[...new Set(f.map(r=>r.cat))].sort(); const g={};
+  f.forEach(r=>{(g[r.cat]=g[r.cat]||{})[r.owner]=(g[r.cat][r.owner]||0)+r.amt});
+  const tot=p=>sum(f.filter(r=>r.owner===p));
+  cats.sort((a,b)=>Object.values(g[b]).reduce((x,y)=>x+y,0)-Object.values(g[a]).reduce((x,y)=>x+y,0));
+  $('whoTable').innerHTML=`<table><thead><tr><th>Category</th>${PEOPLE.map(p=>`<th class="r" style="color:${css(PCOL[p])}">${p}</th>`).join('')}</tr></thead><tbody>`+
+    cats.map(c=>`<tr><td>${c}</td>${PEOPLE.map(p=>`<td class="r">${g[c][p]?fmt(g[c][p]):'–'}</td>`).join('')}</tr>`).join('')+
+    `<tr><td><b>Total</b></td>${PEOPLE.map(p=>`<td class="r"><b>${fmt(tot(p))}</b></td>`).join('')}</tr></tbody></table>`;
+}
+
+function dowChart(f){
+  const el=$('dowChart'), nr=f.filter(r=>r.cat!=='Rent'); const t=Array(7).fill(0),c=Array(7).fill(0); nr.forEach(r=>{t[r.dow]+=r.amt;c[r.dow]++});
+  const max=niceMax(Math.max(...t,1)); const W=Math.max(cw(el),280),H=200,m={l:42,b:24,t:12,r:4}; const bw=(W-m.l-m.r)/7,w=bw*.64;
+  const y=v=>m.t+(H-m.t-m.b)*(1-v/max); const hi=t.indexOf(Math.max(...t));
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spending by weekday">`;
+  for(let i=0;i<=3;i++){const v=max*i/3;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--grid')}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`}
+  t.forEach((v,i)=>{const x=m.l+bw*i+(bw-w)/2;
+    s+=`<g data-tip="<b>${DOW[i]}: ${fmt(v)}</b>${c[i]} transactions<br>${c[i]?fmt2(v/c[i]):'–'} average">
+    <rect x="${x-3}" y="${m.t}" width="${w+6}" height="${H-m.t-m.b}" fill="transparent"/>
+    <rect x="${x}" y="${y(v)}" width="${w}" height="${Math.max(H-m.b-y(v),0)}" rx="3" fill="${css('--accent')}" fill-opacity="${i===hi?1:.4}"/>
+    <text x="${x+w/2}" y="${H-7}" text-anchor="middle">${DOW[i]}</text></g>`});
+  s+='</svg>'; el.innerHTML=s; bindTips(el);
+}
+
+function topTable(f){
+  const g=new Map(); f.forEach(r=>{const o=g.get(r.key)||{k:r.key,n:0,t:0};o.n++;o.t+=r.amt;g.set(r.key,o)});
+  const e=[...g.values()].sort((a,b)=>b.n-a.n||b.t-a.t).slice(0,10);
+  $('topTable').innerHTML=`<table><thead><tr><th>Description</th><th class="r">Times</th><th class="r">Total</th><th class="r">Average</th></tr></thead><tbody>`+
+   e.map(o=>`<tr><td>${titleCase(o.k)}</td><td class="r">${o.n}</td><td class="r">${fmt(o.t)}</td><td class="r">${fmt2(o.t/o.n)}</td></tr>`).join('')+'</tbody></table>';
+}
+
+function ledger(f){
+  const q=state.q.toLowerCase(); let a=f.filter(r=>!q||(r.desc+' '+r.note).toLowerCase().includes(q));
+  const [k,dir]=state.sort; const val={date:r=>r.iso,amt:r=>r.amt};
+  a=[...a].sort((x,y)=>(val[k](x)>val[k](y)?1:val[k](x)<val[k](y)?-1:0)*dir);
+  $('ledger').innerHTML=(a.length?'':'<p class="note">No transactions match.</p>')+a.slice(0,200).map(r=>`<div class="lrow"><div style="min-width:0"><div class="ld">${esc(r.desc)}</div><div class="lm">${MON[r.d.getMonth()]} ${r.d.getDate()} · ${r.cat} · ${r.owner}${r.note?' · '+esc(r.note):''}</div></div><div class="la">${fmt2(r.amt)}</div></div>`).join('')+
+    (a.length>200?`<p class="note">Showing the first 200 of ${a.length}. Search or filter to narrow.</p>`:'');
+}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+function dataNotes(dropped){
+  const L=[]; if(dropped) L.push(`${dropped} empty or incomplete rows were skipped (no date or amount).`);
+  const names=new Map(); rows.forEach(r=>{const k=r.key; if(!names.has(k))names.set(k,new Set()); names.get(k).add(r.desc)});
+  const variants=[...names.values()].filter(s=>s.size>1).length; if(variants) L.push(`${variants} descriptions appear with different spelling or spacing (for example Grocery and Groceries). They are merged in the purchase counts here.`);
+  rows.filter(r=>r.cat==='Rent').forEach((r,i,a)=>{const mn=MON[r.d.getMonth()].toLowerCase(); if(!r.desc.toLowerCase().includes(mn.slice(0,3))) L.push(`Rent on ${r.iso} is labeled “${r.desc}”, which does not match its month.`)});
+  const oc=rows.filter(r=>r.owner==='Joint'&&r.acct.includes('Checking')).length; if(oc) L.push(`${oc} transaction${oc>1?'s are':' is'} marked Joint but paid from a personal checking account.`);
+  const rent=rows.filter(r=>r.cat==='Rent').length, ms=monthsList().length; if(rent!==ms) L.push(`${rent} rent payments across ${ms} months.`);
+  L.push('All amounts are treated as spending. No income, refunds or transfers appear in the transaction list.');
+  $('dataNotes').innerHTML=L.map(l=>`<li>${esc(l)}</li>`).join('');
+}
+
+
+/* ---------- income ---------- */
+const INC_DEFAULT={jTake:1961.48,jPay:26,mGross:73000,mTax:19.6,mRet:10,jMatch:5000,jHsa:500,gift:10000};
+let inc={...INC_DEFAULT};
+try{const s=JSON.parse(localStorage.getItem('mj-income')||'null'); if(s)inc={...inc,...s}}catch(e){}
+const JOEY={gross:3842.69,taxes:754.31,retire:692.31+288.46+57.69,benefits:77.08+8.31+3.05}; // per paycheck, from Joey's pay sheet
+const INC_FIELDS=[['h','Joey (from pay sheet)'],['jTake','Cash per paycheck ($)'],['jPay','Paychecks per year'],['jMatch','Employer 401k match ($/yr)'],['jHsa','Employer HSA deposit ($/yr)'],['h','One-time'],['gift','Joint travel covered by gift ($)'],['h','Molly (estimate)'],['mGross','Gross salary ($)'],['mTax','Taxes (% of gross)'],['mRet','Retirement and benefits (% of gross)']];
+function incInit(){
+  $('incInputs').innerHTML=INC_FIELDS.map(f=>f[0]==='h'?`<h3>${f[1]}</h3>`:`<label for="${f[0]}">${f[1]}</label><input id="${f[0]}" type="number" step="any" min="0" value="${inc[f[0]]}">`).join('');
+  INC_FIELDS.forEach(f=>{if(f[0]==='h')return;$(f[0]).oninput=e=>{const v=parseFloat(e.target.value);inc[f[0]]=isNaN(v)?0:v;try{localStorage.setItem('mj-income',JSON.stringify(inc))}catch(_){};render()}});
+}
+function getInc(){
+  const j=inc.jTake*inc.jPay/12, m=inc.mGross*(1-(inc.mTax+inc.mRet)/100)/12;
+  return {j,m,tot:j+m,jRet:JOEY.retire*inc.jPay/12,jEmp:(inc.jMatch+inc.jHsa)/12};
+}
+function giftByMonth(){ // applies the gift to joint travel charges in date order until it runs out
+  let left=inc.gift; const g=new Map();
+  rows.filter(r=>r.cat==='Travel'&&r.owner==='Joint').forEach(r=>{if(left<=0)return;const u=Math.min(left,r.amt);left-=u;g.set(r.m,(g.get(r.m)||0)+u)});
+  return g;
+}
+function incomeSpend(){ // spending paid from regular income, by month
+  const g=giftByMonth(),b=groupSum(rows,r=>r.m),o=new Map();
+  b.forEach((v,m)=>o.set(m,v-(g.get(m)||0))); return {out:o,gift:g};
+}
+function incRender(){
+  const I=getInc(); const ms=monthsList(); const full=ms.filter(m=>!isPartial(m));
+  const {out:byM,gift:gm}=incomeSpend(); const avgS=full.reduce((s,m)=>s+byM.get(m),0)/full.length;
+  const left=I.tot-avgS, rate=left/I.tot;
+  const row=(a,b,c)=>`<div class="sumrow ${c||''}"><span>${a}</span><span>${b}</span></div>`;
+  $('incSummary').innerHTML=
+    row('Joey take-home per month',fmt(I.j))+row('Molly take-home per month <span class="est">estimate</span>',fmt(I.m))+
+    row('Household take-home per month',fmt(I.tot),'big')+row('Average spending per month'+(inc.gift?' <span class="est">after gift</span>':''),fmt(avgS))+
+    row(left>=0?'Left over per month':'Short per month',(left<0?'−':'')+fmt(Math.abs(left)),'big')+
+    row('Share of take-home saved',Math.round(rate*100)+'%')+
+    row('Joey puts into retirement and HSA',fmt(I.jRet)+' a month')+row('Employer adds (401k match and HSA)',fmt(I.jEmp)+' a month')+row('Joey’s total retirement and HSA growth',fmt(I.jRet+I.jEmp)+' a month','big');
+  const el=$('incChart'), W=Math.max(cw(el),280), narrow=W<520, H=narrow?230:260, m={l:narrow?40:48,r:6,t:22,b:24};
+  const max=niceMax(Math.max(I.tot,...ms.map(x=>byM.get(x)+(gm.get(x)||0)))*1.05); const bw=(W-m.l-m.r)/ms.length,w=Math.min(bw*.68,56);
+  const y=v=>m.t+(H-m.t-m.b)*(1-v/max);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly spending against monthly take-home">`;
+  for(let i=0;i<=3;i++){const v=max*i/3;s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--grid')}"/><text x="${m.l-6}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`}
+  ms.forEach((mo,i)=>{const v=byM.get(mo),gf=gm.get(mo)||0,x=m.l+bw*i+(bw-w)/2,part=isPartial(mo),over=v>I.tot;
+    const t=`<b>${monthLabel(mo)}${part?' (to date)':''}: ${fmt(v)}</b>${gf?'Plus '+fmt(gf)+' of travel covered by the gift<br>':''}${over?'Over take-home by '+fmt(v-I.tot):(part?'':fmt(I.tot-v)+' left over')}`;
+    s+=`<g data-tip="${t.replace(/"/g,'&quot;')}"><rect x="${x-3}" y="${m.t}" width="${w+6}" height="${H-m.t-m.b}" fill="transparent"/><rect x="${x}" y="${y(v)}" width="${w}" height="${H-m.b-y(v)}" rx="3" fill="${css(over?'--warn':'--accent')}" fill-opacity="${part?.45:1}"/>${gf?`<rect x="${x}" y="${y(v+gf)}" width="${w}" height="${Math.max(y(v)-y(v+gf)-1.5,0)}" rx="3" fill="${css('--joint')}" fill-opacity=".45"/>`:''}<text x="${x+w/2}" y="${H-7}" text-anchor="middle">${bw>=26?MON[+mo.slice(5)-1]:MON[+mo.slice(5)-1][0]}${part?'*':''}</text></g>`});
+  s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y(I.tot)}" y2="${y(I.tot)}" stroke="${css('--good')}" stroke-width="2" stroke-dasharray="6 4"/><text x="${W-m.r}" y="${y(I.tot)-6}" text-anchor="end" style="fill:${css('--good')};font-weight:600">Take-home ${fmt(I.tot)}</text></svg>`;
+  $('incChart').innerHTML=s; bindTips($('incChart'));
+  $('incLegend').innerHTML=`<span><i style="background:${css('--accent')}"></i>Spending</span><span><i style="background:${css('--warn')}"></i>Spending above take-home</span><span><i style="background:${css('--good')}"></i>Household take-home per month</span>${inc.gift?`<span><i style="background:${css('--joint')};opacity:.6"></i>Travel covered by gift</span>`:''}`;
+  const over=full.filter(x=>byM.get(x)>I.tot).map(monthLabel);
+  $('incNote').textContent=`Joey's figure is his cash per paycheck times ${inc.jPay} paychecks, spread over 12 months. Molly's is an estimate from her gross salary and the percentages above; change them to match her pay stub. Spending excludes anything not in the transaction list, such as retirement contributions.`+(inc.gift?` The ${fmt(inc.gift)} travel gift is applied to joint travel charges (${fmt(sum(rows.filter(r=>r.cat==='Travel'&&r.owner==='Joint')))} in total), so those months show less out-of-pocket spending (gray cap on each bar).`:'')+(over.length?` Months above take-home: ${over.join(', ')}.`:'');
+}
+
+/* ---------- allocation pie ---------- */
+let allocWho='Both', fixedBy={Joey:new Set(['Rent','Utilities','Grocery']),Molly:new Set(['Rent','Utilities','Grocery','Car'])}, chipKey='';
+function allocCalc(){
+  const I=getInc(), full=monthsList().filter(m=>!isPartial(m)), n=full.length||1, k=inc.jPay/12;
+  const P={Joey:{fixed:0,other:0},Molly:{fixed:0,other:0}};
+  rows.filter(r=>full.includes(r.m)).forEach(r=>{
+    const who=r.acct==='Joey Checking'?'Joey':r.acct==='Molly Checking'?'Molly':r.owner;
+    const bk=p=>fixedBy[p].has(r.cat)?'fixed':'other';
+    if(who==='Joint'){P.Joey[bk('Joey')]+=r.amt/2;P.Molly[bk('Molly')]+=r.amt/2}else if(P[who])P[who][bk(who)]+=r.amt;
+  });
+  const g=giftByMonth(); let gs=0; full.forEach(m=>gs+=g.get(m)||0);
+  ['Joey','Molly'].forEach(p=>{P[p][fixedBy[p].has('Travel')?'fixed':'other']-=gs/2});
+  const base={Joey:(inc.jTake+JOEY.retire+JOEY.benefits)*k, Molly:inc.mGross*(1-inc.mTax/100)/12};
+  const ret={Joey:JOEY.retire*k, Molly:inc.mGross*inc.mRet/100/12};
+  const out={};
+  ['Joey','Molly'].forEach(p=>{
+    const fixed=P[p].fixed/n+(p==='Joey'?JOEY.benefits*k:0), other=P[p].other/n;
+    const left=base[p]-fixed-other-ret[p];
+    out[p]={base:base[p],fixed,other,ret:ret[p],left:Math.max(left,0),over:Math.max(-left,0)};
+  });
+  return out;
+}
+function allocRender(){
+  const key=[...new Set(rows.map(r=>r.cat))].sort().join('|');
+  if(key!==chipKey){chipKey=key;
+    ['Joey','Molly'].forEach(p=>{const box=$('fixedChips'+p); box.innerHTML='';
+      key.split('|').forEach(c=>{const b=document.createElement('button');b.textContent=c;b.setAttribute('aria-pressed',fixedBy[p].has(c));
+        b.onclick=()=>{fixedBy[p].has(c)?fixedBy[p].delete(c):fixedBy[p].add(c);b.setAttribute('aria-pressed',fixedBy[p].has(c));allocRender()};box.appendChild(b)})})}
+  const seg=$('allocSeg'); seg.innerHTML='';
+  ['Both','Joey','Molly'].forEach(p=>{const b=document.createElement('button');b.textContent=p;b.setAttribute('aria-pressed',allocWho===p);b.onclick=()=>{allocWho=p;allocRender()};seg.appendChild(b)});
+  const A=allocCalc(); const ps=allocWho==='Both'?['Joey','Molly']:[allocWho];
+  const S=k=>ps.reduce((s,p)=>s+A[p][k],0);
+  const fixed=S('fixed'), other=S('other'), invest=S('ret'), save=S('left'), over=S('over');
+  const slices=[['Fixed',fixed,'--c-fixed',ps.map(p=>(allocWho==='Both'?p+': ':'')+([...fixedBy[p]].join(', ')||'none')).join('; ')],['Savings',save,'--c-save','income left unspent'],['Investments',invest,'--c-invest','retirement and HSA contributions'],['Spend',other,'--c-other','dining, travel, shopping and the rest']];
+  const tot=slices.reduce((s,x)=>s+x[1],0)||1; const W=300,cx=150,cy=150,R=140; let a=-Math.PI/2, svg=`<svg viewBox="0 0 ${W} ${W}" role="img" aria-label="Share of income: fixed, savings, investments, spend">`;
+  slices.forEach(([nm,v,col])=>{ if(v<=0)return; const f=v/tot, a2=a+f*2*Math.PI;
+    const pt=(ang,r)=>[cx+r*Math.cos(ang),cy+r*Math.sin(ang)];
+    const tipH=`<b>${nm}: ${Math.round(f*100)}%</b>${fmt(v)} a month`;
+    let d; if(f>.9999) d=`M${cx} ${cy-R}A${R} ${R} 0 1 1 ${cx-.01} ${cy-R}Z`; else {const [x1,y1]=pt(a,R),[x2,y2]=pt(a2,R); d=`M${cx} ${cy}L${x1} ${y1}A${R} ${R} 0 ${f>.5?1:0} 1 ${x2} ${y2}Z`}
+    svg+=`<path d="${d}" fill="${css(col)}" stroke="${css('--surface')}" stroke-width="2" data-tip="${tipH}"/>`;
+    if(f>=.06){const [lx,ly]=pt((a+a2)/2,R*.62);svg+=`<text x="${lx}" y="${ly+5}" text-anchor="middle" style="fill:#fff;font:600 15px var(--body);paint-order:stroke;stroke:rgba(0,0,0,.35);stroke-width:2px">${Math.round(f*100)}%</text>`}
+    a=a2});
+  svg+='</svg>'; $('pie').innerHTML=svg; bindTips($('pie'));
+  $('allocTable').innerHTML='<ul class="list">'+slices.map(([nm,v,col,sub])=>`<li><span class="rowl"><span class="dot" style="background:${css(col)}"></span><span style="min-width:0">${nm}<div class="s">${sub}</div></span></span><span class="v">${fmt(v)} · ${Math.round(v/tot*100)}%</span></li>`).join('')+`<li><b>Total per month</b><span class="v">${fmt(tot)}</span></li></ul>`;
+  $('allocNote').textContent=`Investments are retirement and HSA contributions (Joey's from his pay sheet, Molly's from the estimate). Savings is income left unspent. Spend is everything not marked fixed. Joey's insurance, dental and vision premiums count as fixed. Employer contributions are not included. The travel gift is removed from joint spending.`+(over>0?` Spending is ${fmt(over)} a month more than income here, so the slices add up to more than after-tax income.`:'');
+}
+
+function heroRender(){
+  const I=getInc(), full=monthsList().filter(m=>!isPartial(m)), {out}=incomeSpend();
+  const avg=full.reduce((s,m)=>s+out.get(m),0)/full.length, left=I.tot-avg, rate=left/I.tot;
+  const mRet=inc.mGross*inc.mRet/100/12, saved=I.jRet+I.jEmp+mRet;
+  const st=rate>=.15?['good','On track']:rate>=0?['warn','Tight']:['warn','Spending more than coming in'];
+  const first=full.length?monthLabel(full[0]):'', last=full.length?monthLabel(full[full.length-1]):'';
+  $('hero').innerHTML=`<span class="status ${st[0]}">${st[1]}</span>
+   <div class="lab">${left>=0?'Left over each month':'Short each month'}</div>
+   <div class="huge">${fmt(Math.abs(left))}</div>
+   <p class="lead">You bring home about ${fmt(I.tot)} a month and spend about ${fmt(avg)}${left>=0?`, so you keep ${Math.round(rate*100)}¢ of every dollar`:''}.</p>
+   <ul class="list"><li><span>Brought home</span><span class="v">${fmt(I.tot)}</span></li><li><span>Spent</span><span class="v">${fmt(avg)}</span></li><li><span>Retirement and HSA<div class="s">on top, including Joey's employer match</div></span><span class="v">${fmt(saved)}</span></li></ul>
+   <p class="note">Monthly averages, ${first} to ${last}. Brought home means after taxes and retirement. Spending leaves out the $${inc.gift.toLocaleString('en-US')} travel gift. Molly's income is an estimate.</p>`;
+}
+
+let dropped=0;
+function render(){
+  const f=filtered();
+  $('range').textContent=`${rows.length} transactions, ${rows[0].iso} to ${rows[rows.length-1].iso}`;
+  buildControls(); kpis(f); incRender(); allocRender(); heroRender();
+  {const sv={...state}; state.who='All';state.month='All';state.cat=null; try{insights(rows)}finally{Object.assign(state,sv)}}
+  monthChart(filtered()); catChart(); whoTable(f); dowChart(f); topTable(f); ledger(f); dataNotes(dropped);
+}
+$('q').oninput=e=>{state.q=e.target.value;ledger(filtered())};
+$('sortSel').onchange=e=>{const[k,d]=e.target.value.split(':');state.sort=[k,+d];ledger(filtered())};
+let lastW=innerWidth,rsT; addEventListener('resize',()=>{if(innerWidth===lastW)return;lastW=innerWidth;clearTimeout(rsT);rsT=setTimeout(render,150)});
+['explore','assump'].forEach(id=>$(id).addEventListener('toggle',()=>{if($(id).open)render()}));
+$('loadBtn').onclick=()=>$('file').click();
+$('file').onchange=async e=>{
+  const file=e.target.files[0]; if(!file)return;
+  try{
+    const wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});
+    const ws=wb.Sheets[wb.SheetNames[0]]; const j=XLSX.utils.sheet_to_json(ws,{defval:''});
+    const raw=j.map(o=>{const dv=o.DATE; const iso=dv instanceof Date?new Date(dv.getTime()-dv.getTimezoneOffset()*6e4).toISOString().slice(0,10):String(dv).slice(0,10);
+      return [/^\d{4}-\d{2}-\d{2}$/.test(iso)?iso:'',o.DESCRIPTION,o.AMOUNT,o.ACCOUNT,o.OWNER,o.CATEGORY,o.Notes]});
+    const r=ingest(raw); if(!r.out.length)throw new Error('No rows with DATE and AMOUNT columns found.');
+    rows=r.out; dropped=r.dropped; state={...state,month:'All',cat:null,who:'All'}; render();
+  }catch(err){$('range').textContent='Could not read that file: '+err.message+' Expected columns DATE, DESCRIPTION, AMOUNT, ACCOUNT, OWNER, CATEGORY.'}
+  e.target.value='';
+};
+{const r=ingest(SEED); rows=r.out; dropped=r.dropped; incInit(); render();}
+</script>
+
+</body></html>
